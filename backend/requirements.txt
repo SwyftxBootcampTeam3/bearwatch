@@ -1,0 +1,29 @@
+# none of the dependencies are pinned to a release
+# prior to release, pin dependencies 
+
+# app
+fastapi # api framework
+uvicorn # http server
+pydantic   # models + routing sugar
+python-multipart # dependency for FastAPI form parsing
+email-validator  # email validation
+
+# db
+psycopg2-binary  # postgres dependency
+databases[postgresql]    # postgres access using databases library
+SQLAlchemy  # ORM + sql query sugar
+alembic  # database migrations
+
+# auth
+pyjwt    # JSON Web Tokens
+passlib[bcrypt]  # crypto
+
+# dev
+pytest  # testing framework
+pytest-asyncio  # async testing 
+httpx   # http requests library
+asgi-lifespan    # mocks an async server
+
+
+# filestore
+pyseaweed #simplifies some of the commands to access seaweedFS
