@@ -1,0 +1,95 @@
+version: '3.9'
+
+services:
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/:/backend/
+    command: uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    env_file:
+      - ./backend/.env
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - master
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./backend/.env
+    ports:
+      - 5432:5432 #https://docs.docker.com/compose/networking/
+  
+  # seaweedFS
+  master: 
+    image: chrislusf/seaweedfs # use a remote image
+    ports:
+      - 9333:9333
+      - 19333:19333
+    command: "master -ip=master"
+  volume:
+    image: chrislusf/seaweedfs # use a remote image
+    ports:
+      - 8080:8080
+      - 18080:18080
+      - 9325:9325
+    command: 'volume -mserver="master:9333" -port=8080  -metricsPort=9325'
+    depends_on:
+      - master
+  # filer:
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   ports:
+  #     - 8888:8888
+  #     - 18888:18888
+  #     - 9326:9326
+  #   command: 'filer -master="master:9333"  -metricsPort=9326'
+  #   tty: true
+  #   stdin_open: true
+  #   depends_on:
+  #   - master
+  #   - volume
+  # cronjob:
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   command: 'cronjob'
+  #   environment:
+  #     # Run re-replication every 2 minutes
+  #     CRON_SCHEDULE: '*/2 * * * * *' # Default: '*/5 * * * * *'
+  #     WEED_MASTER: master:9333 # Default: localhost:9333
+  #   depends_on:
+  #     - master
+  #     - volume
+  # s3:
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   ports:
+  #     - 8333:8333
+  #     - 9327:9327
+  #   command: 's3 -filer="filer:8888" -metricsPort=9327'
+  #   depends_on:
+  #     - master
+  #     - volume
+  #     - filer
+  # webdav:
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   ports:
+  #     - 7333:7333
+  #   command: 'webdav -filer="filer:8888"'
+  #   depends_on:
+  #     - master
+  #     - volume
+  #     - filer
+  # prometheus:
+  #   image: prom/prometheus:v2.21.0
+  #   ports:
+  #     - 9000:9090
+  #   volumes:
+  #     - ./prometheus:/etc/prometheus
+  #   command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+  #   depends_on:
+  #     - s3
+
+volumes:
+    postgres_data:
