@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import {Tabs, Tab, Typography, Box} from '@mui/material';
+import {Tabs, Tab, Typography, Box, Grid} from '@mui/material';
 import AlertCard from './alertCard';
 
 interface TabPanelProps {
@@ -52,13 +52,28 @@ interface TabPanelProps {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <AlertCard coinCode='BTC' alertStatus='Triggered' />
+          <Grid container columns={4} gap={2}>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' /></Grid>
+          </Grid>
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <AlertCard coinCode='BTC' alertStatus='Watching'/>
+        <Grid container columns={4} gap={2}>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' /></Grid>
+          </Grid>
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <AlertCard coinCode='BTC' alertStatus='In Hibernation' />
+        <Grid container columns={4} gap={2}>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' /></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' /></Grid>
+          </Grid>
         </TabPanel>
       </Box>
     );
