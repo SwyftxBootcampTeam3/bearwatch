@@ -1,15 +1,22 @@
+import { Card, CardContent, Typography } from '@mui/material';
 import React, { FC } from 'react';
 
 interface CardProps {
     coinCode: string;
-    subtitle: string;
+    alertStatus: string;
   }
 
-  const alertCard: FC<CardProps> = ({ coinCode, subtitle }) => {
+  const AlertCard: FC<CardProps> = ({ coinCode, alertStatus }) => {
+    const alertData = {
+      coinCode: ''
+    }
     return (
-        <>
-        </>
+      <Card >
+        <CardContent>
+          <Typography>{alertStatus}</Typography>
+        </CardContent>
+      </Card>
     )
   }
 
-  export default alertCard;
+  export default AlertCard;
