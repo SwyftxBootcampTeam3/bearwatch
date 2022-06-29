@@ -110,14 +110,14 @@ class UsersRepository(BaseRepository):
         return created_user
 
     async def authenticate_user(
-        self, *, email: EmailStr, phone_number: str
+        self, *, email: EmailStr
     ) -> Optional[User]:
         """
         Authenticate supplied email + phone matches a user in database. Return None if not valid/DNE.
         """
 
         # check for existence using email
-        user_in_db = await self.get_user_by_email_and_phone(email=email, phone_number=phone_number)
+        user_in_db = await self.get_user_by_email(email=email)
 
         if not user_in_db:
             return None

@@ -15,7 +15,7 @@ from app.models.user import UserCreate, User, UserPublic
 from app.db.repositories.users import UsersRepository
 
 # services
-from app.services import auth_service
+from app.services.authentication import AuthService
 
 router = APIRouter()
 
@@ -54,9 +54,8 @@ async def create_user(
     # create JWT and attach to UserPublic model
 
     access_token = AccessToken(
-        access_token=auth_service.create_access_token_for_user(user=created_user),
-        token_type="bearer",
-        is_org = created_user.is_org,
+        access_token=AuthService.create_access_token_for_user(user=created_user),
+        token_type="bearer"
     )
 
     # return a public model
@@ -68,18 +67,18 @@ async def create_user(
 
 
 @router.post(
-    "/login/token/", response_model=AccessToken, name="users:login-email-password"
+    "/login/token/", response_model=AccessToken, name="users:login-email"
 )
 async def login_user_with_email_and_password(
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),  # db
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ) -> AccessToken:
     """
-    Takes supplied form data containing 'username' and 'password' matching the OAuth2 standard, passes this to repo to authenticate exists and valid password.
+    Takes supplied form data containing 'username' and 'phone' matching the OAuth2 standard, passes this to repo to authenticate exists and valid password.
     Then generates and returns an accesstoken for that user.
     """
     user = await user_repo.authenticate_user(
-        email=form_data.username, password=form_data.password
+        email=form_data.username
     )
 
     if not user:
@@ -93,43 +92,8 @@ async def login_user_with_email_and_password(
         )
     # else
     access_token = AccessToken(
-        access_token=auth_service.create_access_token_for_user(user=user),
-        token_type="bearer",
-        is_org = user.is_org,
+        access_token=AuthService.create_access_token_for_user(user=user),
+        token_type="bearer"
     )
 
     return access_token
-
-
-@router.post(
-    "/org",
-    response_model=UserPublic,
-    name="users:create-org",
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_org(
-    new_user: UserCreate = Body(..., embed=True),  # we pass in body of json
-    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
-) -> UserPublic:
-    """
-    # CREATE AN ORG SHOULD NOT BE THIS EASY
-    """
-
-    # register user (send UserCreate to db, receive UserInDB)
-
-    created_user = await user_repo.create_org(new_user=new_user)
-
-    # create JWT and attach to UserPublic model
-
-    access_token = AccessToken(
-        access_token=auth_service.create_access_token_for_user(user=created_user),
-        token_type="bearer",
-        is_org = created_user.is_org
-    )
-
-    # return a public model
-
-    # profile attachment done in repository
-
-    # return a public model
-    return created_user.copy(update={"access_token": access_token})

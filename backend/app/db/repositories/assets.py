@@ -60,7 +60,7 @@ class AssetsRepository(BaseRepository):
 
         return map(lambda a : Asset(**a), assets)
 
-    async def get_asset_by_id(self, *, id: int) -> Asset:
+    async def get_asset_by_id(self, *, id: str) -> Asset:
         """
         Queries the database for the first matching user with this email & phone
         """

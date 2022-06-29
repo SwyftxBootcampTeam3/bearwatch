@@ -12,8 +12,8 @@ class AlertBase(CoreModel):
     The base alert model. We don't include those things that are in the database we don't want exposed as any model that extends this will have and have access to its values.
     """
 
-    user: User
-    asset: Asset
+    user_id: str
+    asset_id: str
     price: int
     alert_type: bool
     soft_delete: bool
@@ -25,8 +25,8 @@ class AlertCreate(CoreModel):
     This is the model that we use when we wish to create a new alert. We expect ...
     """
 
-    user: User
-    asset: Asset
+    user_id: str
+    asset_id: str
     price: int
     alert_type: bool
 

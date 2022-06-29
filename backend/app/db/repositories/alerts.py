@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from databases import Database
 
 # app
@@ -14,111 +14,91 @@ from app.db.repositories.base import BaseRepository
 from app.models.alert import Alert, AlertCreate, AlertUpdate
 
 CREATE_ALERT_QUERY = """
-    INSERT INTO alerts (user_id,asset_id,phone_number)
-    VALUES (:email,:phone_number)
-    RETURNING id, email, phone_number, created_at, updated_at;
+    INSERT INTO alerts (user_id,asset_id,price,alert_type)
+    VALUES (:user_id,:asset_id,:price,:alert_type)
+    RETURNING id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
-    FROM users
-    WHERE email = :email;
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    FROM alerts
+    WHERE id = :id;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
-    FROM users
-    WHERE phone_number = :phone_number;
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    FROM alerts
 """
 
 UPDATE_ALERT_PRICE_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
-    FROM users
-    WHERE email = :email AND phone_number = :phone_number;
+    UPDATE alerts
+    SET last_price = :new_price
+    WHERE id = :id;
 """
 
 
-# class AlertsRepository(BaseRepository):
-#     """
-#     All database actions associated with Users
-#     """
+class AlertsRepository(BaseRepository):
+    """
+    All database actions associated with Alerts
+    """
 
-#     # when we init we want to ensure that the auth service is available to the repository --> we're going to be doing auth things
-#     def __init__(self, db: Database) -> None:
-#         """
-#         Standard repository intialise + auth_service + profiles_repo available
-#         """
-#         super().__init__(db)
+    # when we init we want to ensure that the auth service is available to the repository --> we're going to be doing auth things
+    def __init__(self, db: Database) -> None:
+        """
+        Standard repository intialise
+        """
+        super().__init__(db)
 
 
-#     async def get_user_by_email(self, *, email: EmailStr) -> User:
-#         """
-#         Queries the database for the first matching user with this email.
-#         """
+    async def get_alert_by_id(self, *, id: str) -> Alert:
+        """
+        Queries the database for the first matching user with this email.
+        """
 
-#         # pass values to query
-#         user = await self.db.fetch_one(
-#             query=GET_USER_BY_EMAIL_QUERY, values={"email": email}
-#         )
+        # pass values to query
+        alert = await self.db.fetch_one(
+            query=GET_ALERT_BY_ID_QUERY, values={"id": id}
+        )
 
-#         # if user, return UserInDB else None
-#         if user:
-#             user = User(**user)
+        # if user, return UserInDB else None
+        if alert:
+            alert = Alert(**alert)
 
-#             # perform any other modifications on returning inDB model here TODO
-#             # e.g. masking password/hash/private details
-#         return user
+            # perform any other modifications on returning inDB model here TODO
+            # e.g. masking password/hash/private details
+        return alert
 
-#     async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number:str) -> User:
-#         """
-#         Queries the database for the first matching user with this email & phone
-#         """
+    async def get_all_alerts(self) -> List[Alert]:
+        """
+        Queries the database for the first matching user with this email & phone
+        """
 
-#         # pass values to query
-#         user = await self.db.fetch_one(
-#             query=GET_USER_BY_EMAIL_AND_PHONE_QUERY, values={"email": email, "phone_number": phone_number}
-#         )
+        # pass values to query
+        alerts = await self.db.fetch_one(
+            query=GET_ALL_ALERTS_QUERY
+        )
 
-#         # if user, return UserInDB else None
-#         if user:
-#             user = User(**user)
+        return map(lambda a : Alert(**a), alerts)
 
-#             # perform any other modifications on returning inDB model here TODO
-#             # e.g. masking password/hash/private details
-#         return user
+    async def create_alert(self, *, new_alert: AlertCreate) -> Alert:
+        """
+        Creates an alert.
+        """
 
-#     async def create_user(self, *, new_user: UserCreate) -> User:
-#         """
-#         Creates a user.
-#         """
+        # create alert in database
+        created_alert = await self.db.fetch_one(
+            query=CREATE_ALERT_QUERY, values={"user_id":new_alert.user_id,"asset_id":new_alert.asset_id,
+            "price":new_alert.price,"alert_type":new_alert.alert_type}
+        )
 
-#         # unique constraints exist on email -> confirm is not taken
-#         existing_user = await self.get_user_by_email_and_phone(email=new_user.email, phone_number=new_user.phone_number)
+        return created_alert
 
-#         if existing_user:
-#             raise HTTPException(
-#                 status_code=status.HTTP_400_BAD_REQUEST,
-#                 detail="That email is alredy taken. Login or try another.",
-#             )
+    async def update_alert(self, *, updated_alert: AlertUpdate) -> None:
+        """
+        Creates an alert.
+        """
 
-#         # create user in database
-#         created_user = await self.db.fetch_one(
-#             query=CREATE_USER_QUERY, values={"email":new_user.email, "phone_number":new_user.phone_number}
-#         )
-
-#         return created_user
-
-#     async def authenticate_user(
-#         self, *, email: EmailStr, phone_number: str
-#     ) -> Optional[User]:
-#         """
-#         Authenticate supplied email + phone matches a user in database. Return None if not valid/DNE.
-#         """
-
-#         # check for existence using email
-#         user_in_db = await self.get_user_by_email_and_phone(email=email, phone_number=phone_number)
-
-#         if not user_in_db:
-#             return None
-
-#         return user_in_db
+        # create alert in database
+        await self.db.fetch_one(
+            query=UPDATE_ALERT_PRICE_QUERY, values={"price":updated_alert.price}
+        )
