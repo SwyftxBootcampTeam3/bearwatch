@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="App">
     <Header title='BearWatch' subtitle='A subtitle' user='TestUser'/>
-    {!isSignedIn && <LoginPage /> }
+    {!isSignedIn && <LoginPage />}
     </div>
   );
 }
