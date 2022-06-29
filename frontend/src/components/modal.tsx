@@ -1,5 +1,22 @@
 import React, { FC } from 'react';
-import {AppBar, Container, Toolbar, Typography, Modal, Box, Button, SvgIcon, Paper, FormGroup} from '@mui/material';
+import {AppBar, 
+        Container,
+        Toolbar, 
+        Typography, 
+        Modal, 
+        Box, 
+        Button, 
+        SvgIcon, 
+        Paper, 
+        FormGroup, 
+        Grid, 
+        TextField,
+        Input,
+        OutlinedInput,
+        InputAdornment,
+        InputLabel,
+        Autocomplete} from '@mui/material';
+import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import {Add} from '@mui/icons-material'
 
 interface ModalProps {
@@ -29,13 +46,26 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
       alert_type: 'email'
     }
 
+    const coin = {
+      direction: 'down'
+    }
+
+    const coins = [
+      {label: 'BTC'}, {label: 'ETH'}, {label: 'SHIB'}, {label: 'XRP'}
+    ]
+
     /** Sends alert form to database to create the alert */
     const createAlert = () => {
       
     }
 
-    const handleClose = () => {
-      setOpen(!open)
+    /** Potentially implement at a later date */
+    const getPriceDirection = () => {
+      if (coin['direction'] == 'down') {
+        return ArrowDownward;
+      } else {
+        return ArrowUpward;
+      }
     }
 
     return (
@@ -52,7 +82,39 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
                 Create an alert
               </Typography>
               <FormGroup>
-
+                <Grid container rowGap={3} columns={10}>
+                  <Grid item xs={5} >
+                    <InputLabel>Select a coin</InputLabel>
+                    <Autocomplete disablePortal 
+                    renderInput={(params) => <TextField {...params} label="Movie" />}
+                    options={coins}/>
+                  </Grid>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={3}>
+                    <InputLabel>Current Price</InputLabel>
+                    <OutlinedInput label="Current Price" value="100" endAdornment={
+                      <InputAdornment position="end">
+                        <SvgIcon component={getPriceDirection()}/>
+                      </InputAdornment>
+                    } disabled/>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <InputLabel>Alert Price</InputLabel>
+                    <OutlinedInput startAdornment={
+                    <InputAdornment position='start'>
+                      AUD $
+                    </InputAdornment>}/>
+                  </Grid>
+                  <Grid item xs={5}>
+                      <Button variant="contained"><SvgIcon component={ArrowDownward}/></Button>
+                  </Grid> 
+                  <Grid item xs={5}>
+                      <Button variant="contained"><SvgIcon component={ArrowUpward}/></Button>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Button variant="contained">Create alert</Button>
+                  </Grid>
+                </Grid>
               </FormGroup>
 
             </Paper>
