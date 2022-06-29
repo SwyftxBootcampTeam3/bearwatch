@@ -43,7 +43,7 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
       userId: userID,
       code: '',
       price: 0,
-      alert_type: 'email'
+      alert_type: 'decrease'
     }
 
     const coin = {
@@ -53,6 +53,8 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
     const coins = [
       {label: 'BTC'}, {label: 'ETH'}, {label: 'SHIB'}, {label: 'XRP'}
     ]
+
+    const [direction, setDirection] = React.useState(alertForm['alert_type'])
 
     /** Sends alert form to database to create the alert */
     const createAlert = () => {
@@ -86,7 +88,7 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
                   <Grid item xs={5} >
                     <InputLabel>Select a coin</InputLabel>
                     <Autocomplete disablePortal 
-                    renderInput={(params) => <TextField {...params} label="Movie" />}
+                    renderInput={(params) => <TextField {...params} placeholder="Select coin..." />}
                     options={coins}/>
                   </Grid>
                   <Grid item xs={2}></Grid>
@@ -106,17 +108,17 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
                     </InputAdornment>}/>
                   </Grid>
                   <Grid item xs={5}>
-                      <Button variant="contained"><SvgIcon component={ArrowDownward}/></Button>
+                      <Button variant="outlined" onClick={() => {alertForm['alert_type'] = 'decrease'} }><SvgIcon component={ArrowDownward}/></Button>
                   </Grid> 
                   <Grid item xs={5}>
-                      <Button variant="contained"><SvgIcon component={ArrowUpward}/></Button>
+                      <Button onClick={() => {alertForm['alert_type'] = 'increase'} } ><SvgIcon component={ArrowUpward}/></Button>
                   </Grid>
                   <Grid item xs={10}>
                     <Button variant="contained">Create alert</Button>
                   </Grid>
                 </Grid>
               </FormGroup>
-
+                {alertForm['alert_type']}
             </Paper>
         </Modal>
       </>
