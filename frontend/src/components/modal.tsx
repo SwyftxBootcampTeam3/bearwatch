@@ -41,7 +41,7 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
     return (
       <>
       <Button onClick={() => {setOpen(true)}} variant="contained" sx={{textALign: 'right'}} >
-        <SvgIcon component={Add}/></Button>
+        ADD ALERT</Button>
         <Modal
         open={open}
         onClose={() => {setOpen(false)}}
@@ -52,7 +52,7 @@ const AlertModal: FC<ModalProps> = ({ userID}) => {
                 Create an alert
               </Typography>
               <FormGroup>
-                
+
               </FormGroup>
 
             </Paper>
