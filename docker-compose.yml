@@ -1,6 +1,11 @@
 version: '3.9'
 
 services:
+  frontend:
+    command: npm start
+    build: ./frontend
+    ports:
+      - 3000:3000
   server:
     build:
       context: ./backend
@@ -14,7 +19,6 @@ services:
       - 8000:8000
     depends_on:
       - db
-      - master
   db:
     image: postgres:13-alpine
     volumes:
@@ -24,22 +28,22 @@ services:
     ports:
       - 5432:5432 #https://docs.docker.com/compose/networking/
   
-  # seaweedFS
-  master: 
-    image: chrislusf/seaweedfs # use a remote image
-    ports:
-      - 9333:9333
-      - 19333:19333
-    command: "master -ip=master"
-  volume:
-    image: chrislusf/seaweedfs # use a remote image
-    ports:
-      - 8080:8080
-      - 18080:18080
-      - 9325:9325
-    command: 'volume -mserver="master:9333" -port=8080  -metricsPort=9325'
-    depends_on:
-      - master
+  # # seaweedFS
+  # master: 
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   ports:
+  #     - 9333:9333
+  #     - 19333:19333
+  #   command: "master -ip=master"
+  # volume:
+  #   image: chrislusf/seaweedfs # use a remote image
+  #   ports:
+  #     - 8080:8080
+  #     - 18080:18080
+  #     - 9325:9325
+  #   command: 'volume -mserver="master:9333" -port=8080  -metricsPort=9325'
+  #   depends_on:
+  #     - master
   # filer:
   #   image: chrislusf/seaweedfs # use a remote image
   #   ports:
