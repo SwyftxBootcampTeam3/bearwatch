@@ -11,7 +11,7 @@ from app.db.repositories.base import BaseRepository
 # from app.db.repositoris.profiles import ProfilesRepository
 
 # models
-from app.models.alert import Alert, AlertCreate, AlertUpdate
+from app.models.alert import Alert, AlertCreate, AlertDelete, AlertUpdate
 
 CREATE_ALERT_QUERY = """
     INSERT INTO alerts (user_id,asset_id,price,alert_type)
@@ -22,18 +22,31 @@ CREATE_ALERT_QUERY = """
 GET_ALERT_BY_ID_QUERY = """
     SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
     FROM alerts
-    WHERE id = :id;
+    WHERE id = :id AND soft_delete = false;
+"""
+
+GET_ALERT_BY_USER_ID_QUERY = """
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    FROM alerts
+    WHERE user_id = :user_id AND soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
     SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
     FROM alerts
+    WHERE soft_delete = false
 """
 
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
     SET last_price = :new_price
-    WHERE id = :id;
+    WHERE id = :id AND soft_delete = false;
+"""
+
+DELETE_ALERT_PRICE_QUERY = """
+    UPDATE alerts
+    SET soft_delete = true
+    WHERE id = :id AND soft_delete = false;
 """
 
 
@@ -49,10 +62,9 @@ class AlertsRepository(BaseRepository):
         """
         super().__init__(db)
 
-
     async def get_alert_by_id(self, *, id: str) -> Alert:
         """
-        Queries the database for the first matching user with this email.
+        Queries the database for an alert matching this id
         """
 
         # pass values to query
@@ -60,45 +72,69 @@ class AlertsRepository(BaseRepository):
             query=GET_ALERT_BY_ID_QUERY, values={"id": id}
         )
 
-        # if user, return UserInDB else None
         if alert:
             alert = Alert(**alert)
 
-            # perform any other modifications on returning inDB model here TODO
-            # e.g. masking password/hash/private details
         return alert
 
-    async def get_all_alerts(self) -> List[Alert]:
+    async def get_alerts_by_user_id(self, *, user_id: str) -> List[Alert]:
         """
-        Queries the database for the first matching user with this email & phone
+        Queries the database for all alerts for a user
         """
 
         # pass values to query
-        alerts = await self.db.fetch_one(
+        alerts = await self.db.fetch_all(
+            query=GET_ALERT_BY_USER_ID_QUERY, values={"user_id": user_id}
+        )
+
+        # Map alerts to alert model
+        return map(lambda a: Alert(**a), alerts)
+
+    async def get_all_alerts(self) -> List[Alert]:
+        """
+        Queries the database for all non-deleted alerts
+        """
+
+        # pass values to query
+        alerts = await self.db.fetch_all(
             query=GET_ALL_ALERTS_QUERY
         )
 
-        return map(lambda a : Alert(**a), alerts)
+        # Map alerts to alert model
+        return map(lambda a: Alert(**a), alerts)
 
     async def create_alert(self, *, new_alert: AlertCreate) -> Alert:
         """
-        Creates an alert.
+        Creates an alert
         """
 
         # create alert in database
         created_alert = await self.db.fetch_one(
-            query=CREATE_ALERT_QUERY, values={"user_id":new_alert.user_id,"asset_id":new_alert.asset_id,
-            "price":new_alert.price,"alert_type":new_alert.alert_type}
+            query=CREATE_ALERT_QUERY, values={"user_id": new_alert.user_id, "asset_id": new_alert.asset_id,
+                                              "price": new_alert.price, "alert_type": new_alert.alert_type}
         )
 
         return created_alert
 
     async def update_alert(self, *, updated_alert: AlertUpdate) -> None:
         """
-        Creates an alert.
+        Update an alerts:
+        - Price
         """
 
-        # create alert in database
+        # update alert in database
         await self.db.fetch_one(
-            query=UPDATE_ALERT_PRICE_QUERY, values={"price":updated_alert.price}
+            query=UPDATE_ALERT_PRICE_QUERY, values={
+                "price": updated_alert.price}
+        )
+
+    async def delete_alert(self, *, deleted_alert: AlertDelete) -> None:
+        """
+        Delete an alert
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=DELETE_ALERT_PRICE_QUERY, values={
+                "id": deleted_alert.id}
         )

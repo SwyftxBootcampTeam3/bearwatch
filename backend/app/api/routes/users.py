@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm  # JWT
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr  # JWT
 
 
 # dependencies
@@ -20,17 +21,14 @@ from app.services.authentication import AuthService
 router = APIRouter()
 
 # name the route and you can use it across testing and db access
-@router.get("/", response_model=List[UserPublic], name="users:list-all-users")
-async def get_all_users(
-    current_user: User = Depends(get_current_user),
-) -> List[UserPublic]:
 
-    users = [
-        UserPublic(id="1", email="temp@temp.com", username="username1"),
-        UserPublic(id="2", email="this@willbe.com", username="replaced"),
-        current_user,
-    ]
-    return users
+
+@router.get("/me", response_model=UserPublic, name="users:get-user")
+async def get_user(
+    current_user: User = Depends(get_current_user),
+) -> UserPublic:
+
+    return current_user
 
 
 @router.post(
@@ -54,7 +52,8 @@ async def create_user(
     # create JWT and attach to UserPublic model
 
     access_token = AccessToken(
-        access_token=AuthService.create_access_token_for_user(user=created_user),
+        access_token=AuthService.create_access_token_for_user(
+            user=created_user),
         token_type="bearer"
     )
 
@@ -69,28 +68,24 @@ async def create_user(
 @router.post(
     "/login/token/", response_model=AccessToken, name="users:login-email"
 )
-async def login_user_with_email_and_password(
-    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),  # db
-    form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
+async def login_user_with_email(
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
+    email: EmailStr = Body(..., embed=True),
 ) -> AccessToken:
     """
-    Takes supplied form data containing 'username' and 'phone' matching the OAuth2 standard, passes this to repo to authenticate exists and valid password.
+    Takes supplied email, passes this to repo to authenticate.
     Then generates and returns an accesstoken for that user.
     """
     user = await user_repo.authenticate_user(
-        email=form_data.username
+        email=email
     )
 
     if not user:
-        # those values you provided are not authorised
-        # specifically: auth was unsuccessful
-        # you should be using the bearer auth scheme - an fyi incase
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication was unsuccessful.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # else
     access_token = AccessToken(
         access_token=AuthService.create_access_token_for_user(user=user),
         token_type="bearer"
