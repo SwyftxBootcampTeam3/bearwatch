@@ -12,18 +12,18 @@ from app.db.repositories.base import BaseRepository
 from app.models.asset import Asset, AssetCreate
 
 GET_ALL_ASSETS_QUERY = """
-    SELECT id, name, code, created_at, updated_at;
-    FROM assets
+    SELECT id, name, code, price, created_at, updated_at
+    FROM assets;
 """
 
 GET_ASSET_BY_ID = """
-    SELECT id, name, code, created_at, updated_at;
+    SELECT id, name, code, price, created_at, updated_at
     FROM assets
     WHERE id = :id;
 """
 
 GET_ASSET_BY_CODE = """
-    SELECT id, name, code, created_at, updated_at;
+    SELECT id, name, code, price, created_at, updated_at
     FROM assets
     WHERE code = :code;
 """
@@ -47,22 +47,22 @@ class AssetsRepository(BaseRepository):
         """
         super().__init__(db)
 
-
     async def get_all_assets(self) -> List[Asset]:
         """
-        Queries the database for the first matching user with this email.
+        Queries the database for all the current assets
         """
 
         # pass values to query
-        assets = await self.db.fetch_one(
+        assets = await self.db.fetch_all(
             query=GET_ALL_ASSETS_QUERY
         )
 
-        return map(lambda a : Asset(**a), assets)
+        # Map assets to asset model
+        return list(map(lambda a: Asset(**a), assets))
 
     async def get_asset_by_id(self, *, id: str) -> Asset:
         """
-        Queries the database for the first matching user with this email & phone
+        Queries the database for an asset with the matching id
         """
 
         # pass values to query
@@ -70,7 +70,6 @@ class AssetsRepository(BaseRepository):
             query=GET_ASSET_BY_ID, values={"id": id}
         )
 
-        # if user, return UserInDB else None
         if asset:
             asset = Asset(**asset)
 
@@ -78,7 +77,7 @@ class AssetsRepository(BaseRepository):
 
     async def get_asset_by_code(self, *, code: str) -> Asset:
         """
-        Queries the database for the first matching user with this email & phone
+        Queries the database for the first matching asset with this code (this SHOULD be a unique field)
         """
 
         # pass values to query
@@ -86,7 +85,6 @@ class AssetsRepository(BaseRepository):
             query=GET_ASSET_BY_CODE, values={"code": code}
         )
 
-        # if user, return UserInDB else None
         if asset:
             asset = Asset(**asset)
 
@@ -97,7 +95,7 @@ class AssetsRepository(BaseRepository):
         Creates a asset.
         """
 
-        # unique constraints exist on email -> confirm is not taken
+        # unique constraints exist on code, ensure no asset exists with this code
         existing_asset = await self.get_asset_by_code(code=new_asset.code)
 
         if existing_asset:
@@ -106,9 +104,10 @@ class AssetsRepository(BaseRepository):
                 detail="That asset already exists",
             )
 
-        # create user in database
+        # create asset in database
         created_asset = await self.db.fetch_one(
-            query=CREATE_ASSET_QUERY, values={"name":new_asset.name, "code":new_asset.code, "last_price":new_asset.last_price}
+            query=CREATE_ASSET_QUERY, values={
+                "name": new_asset.name, "code": new_asset.code, "last_price": new_asset.last_price}
         )
 
         return created_asset
