@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import React, { FC } from 'react';
+import AlertModal from './modal';
 
 interface CardProps {
     coinCode: string;
@@ -18,6 +19,7 @@ interface CardProps {
     const alertData = {
       coinCode: ''
     }
+
     return (
       <Card >
         <CardContent style = {alertStatus === "Triggered" ? {backgroundColor : '#E2F0FF' } : {backgroundColor : "white" }}>
