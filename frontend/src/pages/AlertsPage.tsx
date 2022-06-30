@@ -6,6 +6,12 @@ import AlertModal from '../components/modal';
 
 export default function AlertsPage() {
    
+    const [addNewAlert, setAddNewAlert] = React.useState(false);
+
+    const toggleModal = () => {
+        setAddNewAlert(!addNewAlert)
+        console.log('toggleModal')
+    }
     return (
         <>
         <Box sx ={{padding: 2}}>
@@ -18,7 +24,10 @@ export default function AlertsPage() {
 
                 <Grid item xs={2}>
                     <Box sx={{textAlign: 'right'}}>
-                        <AlertModal userID="21"/>
+                        <Button variant="contained" onClick={() => {setAddNewAlert(true)}}>
+                            ADD ALERT
+                        </Button>
+                        {addNewAlert && <AlertModal userID="21" isNew={true} toggleModal={toggleModal}/>}
                     </Box>
                 </Grid>
             </Grid>
