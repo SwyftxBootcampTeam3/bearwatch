@@ -52,14 +52,20 @@ async def update_alert(
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
     # Get the alert to check the user owns the alert
-    alert = alerts_repo.get_alert_by_id(alert_id)
+    alert = await alerts_repo.get_alert_by_id(alert_id)
+    if not alert:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="That alert does not exist!",
+        )
+
     if current_user.id != alert.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You can only update an alert for yourself!",
         )
 
-    await alerts_repo.update_alert(updated_alert=updated_alert)
+    await alerts_repo.update_alert(alert_id=alert_id, updated_alert=updated_alert)
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
 
@@ -70,7 +76,7 @@ async def update_alert(
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> None:
     # Get the alert to check the user owns the alert
-    alert = alerts_repo.get_alert_by_id(alert_id)
+    alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

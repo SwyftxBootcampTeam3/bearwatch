@@ -1,4 +1,5 @@
 from typing import Optional, List
+from asyncpg import ForeignKeyViolationError
 from databases import Database
 
 # app
@@ -62,7 +63,7 @@ class AlertsRepository(BaseRepository):
         """
         super().__init__(db)
 
-    async def get_alert_by_id(self, *, id: str) -> Alert:
+    async def get_alert_by_id(self, id: str) -> Alert:
         """
         Queries the database for an alert matching this id
         """
@@ -108,14 +109,20 @@ class AlertsRepository(BaseRepository):
         """
 
         # create alert in database
-        created_alert = await self.db.fetch_one(
-            query=CREATE_ALERT_QUERY, values={"user_id": new_alert.user_id, "asset_id": new_alert.asset_id,
-                                              "price": new_alert.price, "alert_type": new_alert.alert_type}
-        )
+        try:
+            created_alert = await self.db.fetch_one(
+                query=CREATE_ALERT_QUERY, values={"user_id": new_alert.user_id, "asset_id": new_alert.asset_id,
+                                                  "price": new_alert.price, "alert_type": new_alert.alert_type}
+            )
+        except ForeignKeyViolationError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="That asset does not exist!",
+            )
 
         return created_alert
 
-    async def update_alert(self, *, updated_alert: AlertUpdate) -> None:
+    async def update_alert(self, alert_id: int, updated_alert: AlertUpdate) -> None:
         """
         Update an alerts:
         - Price
@@ -124,7 +131,7 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=UPDATE_ALERT_PRICE_QUERY, values={
-                "price": updated_alert.price, "id": updated_alert.id}
+                "price": updated_alert.price, "alert_type": updated_alert.alert_type, "asset_id": updated_alert.asset_id, "id": alert_id}
         )
 
     async def delete_alert_by_id(self, *, alert_id: int) -> None:
