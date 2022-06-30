@@ -67,7 +67,7 @@ async def create_user(
 
 
 @router.post(
-    "/login/{email}", response_model=AccessToken, name="users:login-email"
+    "/login/", response_model=AccessToken, name="users:login-email"
 )
 async def login_user_with_email(
     email: EmailStr,

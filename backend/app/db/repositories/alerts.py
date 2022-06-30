@@ -11,7 +11,7 @@ from app.db.repositories.base import BaseRepository
 # from app.db.repositoris.profiles import ProfilesRepository
 
 # models
-from app.models.alert import Alert, AlertCreate, AlertDelete, AlertUpdate
+from app.models.alert import Alert, AlertCreate, AlertUpdate
 
 CREATE_ALERT_QUERY = """
     INSERT INTO alerts (user_id,asset_id,price,alert_type)

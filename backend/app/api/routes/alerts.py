@@ -9,7 +9,7 @@ from app.api.dependencies.auth import get_current_user
 
 # models
 from app.models.token import AccessToken
-from app.models.alert import Alert, AlertCreate, AlertUpdate, AlertDelete
+from app.models.alert import Alert, AlertCreate, AlertUpdate
 
 # repositories
 from app.db.repositories.alerts import AlertsRepository
@@ -44,7 +44,7 @@ async def create_alert(
     return alert
 
 
-@router.put("/{alert_id}", name="alerts:update-alert")
+@router.put("/", name="alerts:update-alert")
 async def update_alert(
     alert_id: int,
     updated_alert: AlertUpdate = Body(..., embed=True),
@@ -63,7 +63,7 @@ async def update_alert(
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
 
-@router.delete("/{alert_id}", name="alerts:delete-alert")
+@router.delete("/", name="alerts:delete-alert")
 async def update_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
