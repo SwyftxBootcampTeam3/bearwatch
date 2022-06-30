@@ -39,7 +39,7 @@ GET_ALL_ALERTS_QUERY = """
 
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
-    SET price = :price
+    SET price = :price, asset_id = :asset_id, alert_type = :alert_type
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -127,7 +127,7 @@ class AlertsRepository(BaseRepository):
                 "price": updated_alert.price, "id": updated_alert.id}
         )
 
-    async def delete_alert(self, *, deleted_alert: AlertDelete) -> None:
+    async def delete_alert_by_id(self, *, alert_id: int) -> None:
         """
         Delete an alert
         """
@@ -135,5 +135,5 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=DELETE_ALERT_PRICE_QUERY, values={
-                "id": deleted_alert.id}
+                "id": alert_id}
         )

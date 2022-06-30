@@ -67,11 +67,11 @@ async def create_user(
 
 
 @router.post(
-    "/login/token/", response_model=AccessToken, name="users:login-email"
+    "/login/{email}", response_model=AccessToken, name="users:login-email"
 )
 async def login_user_with_email(
+    email: EmailStr,
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
-    email: EmailStr = Body(..., embed=True),
     auth_service: AuthService = Depends(AuthService)
 ) -> AccessToken:
     """

@@ -44,34 +44,43 @@ async def create_alert(
     return alert
 
 
-@router.put("/", name="alerts:update-alert")
+@router.put("/{alert_id}", name="alerts:update-alert")
 async def update_alert(
+    alert_id: int,
     updated_alert: AlertUpdate = Body(..., embed=True),
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
-
-    if current_user.id != updated_alert.user_id:
+    # Get the alert to check the user owns the alert
+    alert = alerts_repo.get_alert_by_id(alert_id)
+    if current_user.id != alert.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You can only update an alert for yourself!",
         )
 
     await alerts_repo.update_alert(updated_alert=updated_alert)
-    alert = await alerts_repo.get_alert_by_id(id=updated_alert.id)
-    return alert
+    return await alerts_repo.get_alert_by_id(id=alert_id)
 
 
-@router.delete("/", name="alerts:delete-alert")
+@router.delete("/{alert_id}", name="alerts:delete-alert")
 async def update_alert(
-    deleted_alert: AlertDelete = Body(..., embed=True),
+    alert_id: int,
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> None:
-    if current_user.id != deleted_alert.user_id:
+    # Get the alert to check the user owns the alert
+    alert = alerts_repo.get_alert_by_id(alert_id)
+    if not alert:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="That alert doees not exist!",
+        )
+
+    if current_user.id != alert.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You can only update an alert for yourself!",
         )
 
-    await alerts_repo.delete_alert(deleted_alert=deleted_alert)
+    await alerts_repo.delete_alert_by_id(alert_id=alert_id)

@@ -35,15 +35,7 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     soft_delete: bool
 
 
-class AlertUpdate(Alert):
-    """
-    Alert can be updated
-    """
-
-    pass
-
-
-class AlertDelete(Alert):
+class AlertUpdate(AlertBase):
     """
     Alert can be updated
     """
