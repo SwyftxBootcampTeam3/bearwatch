@@ -10,7 +10,7 @@ class JWTMeta(CoreModel):
     mixin for JWT payload, holds JWT meta values (issuer/audience/times)
     """
 
-    iss: str = "assistr.io"  # issuer
+    iss: str = "bearwatch"  # issuer
     aud: str = JWT_AUDIENCE  # audience
     iat: float = datetime.timestamp(datetime.utcnow())  # issued at
     exp: float = datetime.timestamp(

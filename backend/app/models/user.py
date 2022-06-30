@@ -12,7 +12,7 @@ class UserBase(CoreModel):
     """
 
     email: EmailStr
-    phone_number: str
+    phone_number: int
 
 
 class UserCreate(CoreModel):
@@ -23,7 +23,7 @@ class UserCreate(CoreModel):
     """
 
     email: EmailStr
-    phone_number: str
+    phone_number: int
 
 
 class UserUpdate(CoreModel):
@@ -32,7 +32,7 @@ class UserUpdate(CoreModel):
     """
 
     email: EmailStr
-    phone_number: str
+    phone_number: int
 
 
 class User(IDModelMixin, DateTimeModelMixin, UserBase):
@@ -42,6 +42,7 @@ class User(IDModelMixin, DateTimeModelMixin, UserBase):
     """
 
     pass
+
 
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):
     """

@@ -40,6 +40,7 @@ async def get_user(
 async def create_user(
     new_user: UserCreate = Body(..., embed=True),  # we pass in body of json
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
+    auth_service: AuthService = Depends(AuthService)
 ) -> UserPublic:
     """
     Creates a new user and returns a public model including access token (JWT)
@@ -52,7 +53,7 @@ async def create_user(
     # create JWT and attach to UserPublic model
 
     access_token = AccessToken(
-        access_token=AuthService.create_access_token_for_user(
+        access_token=auth_service.create_access_token_for_user(
             user=created_user),
         token_type="bearer"
     )
@@ -71,6 +72,7 @@ async def create_user(
 async def login_user_with_email(
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
     email: EmailStr = Body(..., embed=True),
+    auth_service: AuthService = Depends(AuthService)
 ) -> AccessToken:
     """
     Takes supplied email, passes this to repo to authenticate.
@@ -87,7 +89,7 @@ async def login_user_with_email(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = AccessToken(
-        access_token=AuthService.create_access_token_for_user(user=user),
+        access_token=auth_service.create_access_token_for_user(user=user),
         token_type="bearer"
     )
 

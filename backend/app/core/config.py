@@ -15,7 +15,8 @@ API_PREFIX = "/api"
 
 
 # JWT
-SECRET_KEY = config("SECRET_KEY", cast=Secret)  # no default, must be set in .env
+# no default, must be set in .env
+SECRET_KEY = config("SECRET_KEY", cast=Secret)
 ACCESS_TOKEN_EXPIRE_MINUTES = config(
     "ACCESS_TOKEN_EXPIRE_MINUTES", cast=int, default=60 * 24 * 7  # one week
 )

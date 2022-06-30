@@ -20,19 +20,19 @@ CREATE_USER_QUERY = """
 """
 
 GET_USER_BY_EMAIL_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
+    SELECT id, email, phone_number, created_at, updated_at
     FROM users
     WHERE email = :email;
 """
 
 GET_USER_BY_PHONE_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
+    SELECT id, email, phone_number, created_at, updated_at
     FROM users
     WHERE phone_number = :phone_number;
 """
 
 GET_USER_BY_EMAIL_AND_PHONE_QUERY = """
-    SELECT id, email, phone_number, created_at, updated_at;
+    SELECT id, email, phone_number, created_at, updated_at
     FROM users
     WHERE email = :email AND phone_number = :phone_number;
 """
@@ -65,7 +65,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_phone_number(self, *, phone_number: str) -> User:
+    async def get_user_by_phone_number(self, *, phone_number: int) -> User:
         """
         Queries the database for the first matching user with this phone number.
         """
@@ -81,7 +81,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: str) -> User:
+    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: int) -> User:
         """
         Queries the database for the first matching user with this email & phone
         """
@@ -97,7 +97,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def check_user_already_exists(self, *, email: EmailStr, phone_number: str) -> int:
+    async def check_user_already_exists(self, *, email: EmailStr, phone_number: int) -> int:
         '''
         Queries the database to check the email or phone number provided is already in use
         '''
@@ -124,7 +124,7 @@ class UsersRepository(BaseRepository):
                 query=CREATE_USER_QUERY, values={
                     "email": new_user.email, "phone_number": new_user.phone_number}
             )
-            return created_user
+            return User(**created_user)
         elif user_exists == 1:  # Email is in use
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

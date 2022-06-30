@@ -12,18 +12,18 @@ from app.db.repositories.base import BaseRepository
 from app.models.asset import Asset, AssetCreate
 
 GET_ALL_ASSETS_QUERY = """
-    SELECT id, name, code, created_at, updated_at;
-    FROM assets
+    SELECT id, name, code, price, created_at, updated_at
+    FROM assets;
 """
 
 GET_ASSET_BY_ID = """
-    SELECT id, name, code, created_at, updated_at;
+    SELECT id, name, code, price, created_at, updated_at
     FROM assets
     WHERE id = :id;
 """
 
 GET_ASSET_BY_CODE = """
-    SELECT id, name, code, created_at, updated_at;
+    SELECT id, name, code, price, created_at, updated_at
     FROM assets
     WHERE code = :code;
 """
@@ -58,7 +58,7 @@ class AssetsRepository(BaseRepository):
         )
 
         # Map assets to asset model
-        return map(lambda a: Asset(**a), assets)
+        return list(map(lambda a: Asset(**a), assets))
 
     async def get_asset_by_id(self, *, id: str) -> Asset:
         """

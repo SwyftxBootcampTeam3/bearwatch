@@ -1,3 +1,10 @@
+from app.core.config import (
+    SECRET_KEY,
+    JWT_ALGORITHM,
+    JWT_AUDIENCE,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
+import jwt
 from datetime import datetime, timedelta
 from typing import Optional, Type
 
@@ -18,13 +25,6 @@ from app.models.user import User, UserBase
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT
-import jwt
-from app.core.config import (
-    SECRET_KEY,
-    JWT_ALGORITHM,
-    JWT_AUDIENCE,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-)
 
 
 class AuthService:
@@ -69,13 +69,15 @@ class AuthService:
 
         # provide a user or receive nothing
         if not user or not isinstance(user, User):
+            print(user)
             return None
 
         # meta for payload
         jwt_meta = JWTMeta(
             aud=audience,
             iat=datetime.timestamp(datetime.utcnow()),
-            exp=datetime.timestamp(datetime.utcnow() + timedelta(minutes=expires_in)),
+            exp=datetime.timestamp(datetime.utcnow() +
+                                   timedelta(minutes=expires_in)),
         )
 
         # cred for payload
@@ -111,7 +113,8 @@ class AuthService:
 
             # unpack returned into a JWTPayload model
             token_data = JWTPayload(**payload)
-        except (jwt.PyJWTError, ValidationError):
+        except (jwt.PyJWTError, ValidationError) as e:
+            print(e)
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Could not validate token credentials",

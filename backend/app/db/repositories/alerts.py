@@ -20,26 +20,26 @@ CREATE_ALERT_QUERY = """
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
     FROM alerts
     WHERE id = :id AND soft_delete = false;
 """
 
 GET_ALERT_BY_USER_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
     FROM alerts
     WHERE user_id = :user_id AND soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
     FROM alerts
-    WHERE soft_delete = false
+    WHERE soft_delete = false;
 """
 
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
-    SET last_price = :new_price
+    SET price = :price
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -77,18 +77,17 @@ class AlertsRepository(BaseRepository):
 
         return alert
 
-    async def get_alerts_by_user_id(self, *, user_id: str) -> List[Alert]:
+    async def get_alerts_by_user_id(self, user_id: str) -> List[Alert]:
         """
         Queries the database for all alerts for a user
         """
-
         # pass values to query
         alerts = await self.db.fetch_all(
             query=GET_ALERT_BY_USER_ID_QUERY, values={"user_id": user_id}
         )
 
         # Map alerts to alert model
-        return map(lambda a: Alert(**a), alerts)
+        return list(map(lambda a: Alert(**a), alerts))
 
     async def get_all_alerts(self) -> List[Alert]:
         """
@@ -101,7 +100,7 @@ class AlertsRepository(BaseRepository):
         )
 
         # Map alerts to alert model
-        return map(lambda a: Alert(**a), alerts)
+        return list(map(lambda a: Alert(**a), alerts))
 
     async def create_alert(self, *, new_alert: AlertCreate) -> Alert:
         """
@@ -125,7 +124,7 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=UPDATE_ALERT_PRICE_QUERY, values={
-                "price": updated_alert.price}
+                "price": updated_alert.price, "id": updated_alert.id}
         )
 
     async def delete_alert(self, *, deleted_alert: AlertDelete) -> None:

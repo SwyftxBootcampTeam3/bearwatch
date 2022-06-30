@@ -12,7 +12,7 @@ class AlertBase(CoreModel):
     The base alert model. We don't include those things that are in the database we don't want exposed as any model that extends this will have and have access to its values.
     """
 
-    asset_id: str
+    asset_id: int
     price: int
     alert_type: bool
 
@@ -22,7 +22,7 @@ class AlertCreate(AlertBase):
     This is the model that we use when we wish to create a new alert. We expect ...
     """
 
-    user_id: str
+    user_id: int
 
 
 class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
@@ -31,7 +31,7 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     Functionally it represents one row of the 'users' table.
     """
 
-    user_id: str
+    user_id: int
     soft_delete: bool
 
 
