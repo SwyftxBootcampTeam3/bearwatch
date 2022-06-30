@@ -41,38 +41,33 @@ interface TabPanelProps {
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
       setValue(newValue);
     };
-  
+  //add some validation to only return cards that have not been soft deleted...
     return (
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Triggered" {...a11yProps(0)} />
-            <Tab label="Watching" {...a11yProps(1)} />
-            <Tab label="In Hiberation" {...a11yProps(2)} />
+            <Tab label="Watching" {...a11yProps(0)} />
+            <Tab label="In Hiberation" {...a11yProps(1)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <Grid container columns={4} gap={2}>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' activeStatus='Inactive'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' activeStatus='Inactive'/></Grid>
+        <Grid container columns={4} gap={2}>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "20"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "30"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "40"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "4"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "5"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "6"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "7"/></Grid>
           </Grid>
         </TabPanel>
         <TabPanel value={value} index={1}>
         <Grid container columns={4} gap={2}>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' activeStatus='Inactive'/></Grid>
-          </Grid>
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-        <Grid container columns={4} gap={2}>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' activeStatus='Active'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' activeStatus='Inactive'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' activeStatus='Inactive'/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' activeStatus='Inactive'/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
           </Grid>
         </TabPanel>
       </Box>
