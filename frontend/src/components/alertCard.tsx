@@ -1,5 +1,6 @@
 import { Card, CardContent, Typography } from '@mui/material';
 import React, { FC } from 'react';
+import AlertModal from './modal';
 
 interface CardProps {
     coinCode: string;
@@ -10,8 +11,9 @@ interface CardProps {
     const alertData = {
       coinCode: ''
     }
+
     return (
-      <Card >
+      <Card>
         <CardContent>
           <Typography>{alertStatus}</Typography>
         </CardContent>

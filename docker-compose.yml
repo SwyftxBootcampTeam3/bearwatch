@@ -12,11 +12,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend/:/backend/
-    command: uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    command: uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 9191
     env_file:
       - ./backend/.env
     ports:
-      - 8000:8000
+      - 9191:9191
     depends_on:
       - db
   db:
