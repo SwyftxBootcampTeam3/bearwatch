@@ -32,7 +32,7 @@ interface CardProps {
               <Button variant="contained" disabled = {alertType === "Down"}><SvgIcon component={ArrowUpward}/></Button>
           </Grid>
           <Grid item xs={12}>
-            <TextField label = "Alert Price" id = {currentPrice} InputProps={{
+            <TextField label = "Alert Price" value = {currentPrice} InputProps={{
             startAdornment: <InputAdornment position="start">$</InputAdornment>,
           }}/>
           </Grid>
