@@ -10,11 +10,13 @@ function App() {
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   
+  const toggleLogin = () => {
+    setIsSignedIn(!isSignedIn);
+  }
   return (
     <div className="App">
     <Header title='BearWatch' subtitle='A subtitle' user='TestUser'/>
-    <Button onClick={() => {setIsSignedIn(!isSignedIn)}}>Toggle</Button>
-    {!isSignedIn && <LoginPage />}
+    {!isSignedIn && <LoginPage toggleLogin={toggleLogin} />}
     {isSignedIn && <AlertsPage />}
     </div>
   );
