@@ -9,6 +9,7 @@ import AlertsPage from './pages/AlertsPage';
 function App() {
 
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [user, setUser] = useState(null);
   
   return (
     <div className="App">
