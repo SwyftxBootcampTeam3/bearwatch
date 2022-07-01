@@ -1,7 +1,12 @@
 import { Container, FormGroup, TextField, Paper, Box, FormControlLabel, Checkbox, FormLabel, Button, Typography } from '@mui/material';
 import React, { useState } from 'react';
 
-export default function LoginPage() {
+
+interface LoginProps {
+    toggleLogin: any
+  }
+  
+export default function LoginPage(props: LoginProps) {
     const defaultValues = {
         email: "",
         ph: "",
@@ -38,7 +43,7 @@ export default function LoginPage() {
                     <FormControlLabel control={<Checkbox defaultChecked />} label="Email" />
                     <FormControlLabel control={<Checkbox />} label="SMS" />
                 </FormGroup>
-                <Button variant="contained">Submit</Button>
+                <Button variant="contained" onClick={() => {props.toggleLogin()}}>Submit</Button>
             </FormGroup>
             <p>Have an account? Sign in here</p>
         </Paper>
