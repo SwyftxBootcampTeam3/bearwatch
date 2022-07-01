@@ -52,22 +52,22 @@ interface TabPanelProps {
         </Box>
         <TabPanel value={value} index={0}>
         <Grid container columns={4} gap={2}>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "10"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "20"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "30"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "40"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "4"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "5"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "6"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "7"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {1} coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {2} coinCode='BTC' alertStatus='Triggered' alertType = 'Up' currentPrice = "20"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {3} coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "30"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {4} coinCode='BTC' alertStatus='Triggered' alertType = 'Down' currentPrice = "40"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {5} coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "4"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {6} coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "5"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {7} coinCode='BTC' alertStatus='Watching' alertType = 'Up' currentPrice = "6"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {8} coinCode='BTC' alertStatus='Watching' alertType = 'Down' currentPrice = "7"/></Grid>
           </Grid>
         </TabPanel>
         <TabPanel value={value} index={1}>
         <Grid container columns={4} gap={2}>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
-            <Grid item xs={1}><AlertCard coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {9} coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {10} coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {11} coinCode='BTC' alertStatus='In Hibernation' alertType = 'Down' currentPrice = "10"/></Grid>
+            <Grid item xs={1}><AlertCard alertId = {12} coinCode='BTC' alertStatus='In Hibernation' alertType = 'Up' currentPrice = "10"/></Grid>
           </Grid>
         </TabPanel>
       </Box>
