@@ -92,7 +92,13 @@ const LoginPage: FC<LoginProps> = (props: LoginProps) => {
                 <Button variant="contained" onClick={handleLogin}>Login</Button>
                 }
             </FormGroup>
-        <Button variant="text">Log in</Button>
+        <br/>
+        {signUp && 
+            <Button variant="text" onClick={() => setSignUp(!signUp)}>Log in here</Button>
+        }
+        {!signUp && 
+            <Button variant="text" onClick={() => setSignUp(!signUp)}>Sign up here</Button>
+        }
         </Paper>
         </Box>
         {loginError !== null && <Alert severity='error' onClose={() => {setLoginError(null)}}>{loginError}</Alert>}
