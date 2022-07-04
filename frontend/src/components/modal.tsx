@@ -21,6 +21,7 @@ import {AppBar,
 import { ArrowUpward, ArrowDownward, PropaneSharp } from '@mui/icons-material';
 import {Add} from '@mui/icons-material'
 import { send } from 'process';
+import { Asset } from '../types/models';
 
 /**
  * ModalProps:
@@ -29,7 +30,6 @@ import { send } from 'process';
  * toggleModal: function from parent dictating whether modal should be opened or closed. 
  */
 interface ModalProps {
-  userID: string,
   isNew: boolean,
   toggleModal: any,
   alertId?: any
@@ -37,7 +37,6 @@ interface ModalProps {
 
 const AlertModal: FC<ModalProps> = (props: ModalProps) => {
     
-    const [alertType, setAlertType] = React.useState('decrease');
     const style = {
       position: 'absolute' as 'absolute',
       top: '50%',
@@ -50,21 +49,14 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       p: 4,
     };
 
-    
-
     const defaultAlertForm = {
-      userId: props.userID,
-      code: '',
-      price: 0,
-      alert_type: alertType
+      asset_id: null,
+      price: null,
+      alert_type: 'decrease'
     }
 
-    const coin = {
-      direction: 'down'
-    }
-
-    const coins = [
-      {label: 'BTC'}, {label: 'ETH'}, {label: 'SHIB'}, {label: 'XRP'}
+    const assets:Asset[] = [
+      {id: 1, name: 'Test Coin', code: 'TST', price:0}
     ]
 
     const [alertForm, setAlertForm] = React.useState(defaultAlertForm);
@@ -72,20 +64,11 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
 
     /** Sends alert form to database to create the alert */
     const createAlert = () => {
-      
-    }
-
-    /** Potentially implement at a later date */
-    const getPriceDirection = () => {
-      if (coin['direction'] == 'down') {
-        return ArrowDownward;
-      } else {
-        return ArrowUpward;
-      }
+      console.log(alertForm);
     }
 
     function toggleButton(dir: string) {
-      if (dir == alertType) {
+      if (dir === alertForm.alert_type) {
         return 'contained'
       } else {
         return 'outlined'
@@ -125,20 +108,13 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
                   <Grid item xs={5}>
                   <InputLabel>Coin</InputLabel>
                   <Autocomplete disablePortal 
-                      renderInput={(params) => <TextField {...params} defaultValue="TODO" />}
-                      options={coins} hidden = {props.isNew}/>
-                  <Autocomplete disablePortal 
                       renderInput={(params) => <TextField {...params} placeholder="Select coin..." />}
-                      options={coins} hidden = {!props.isNew}/>
+                      options={assets.map(a => a.name)} hidden = {!props.isNew} onChange={(e) => console.log(e)}/>
                   </Grid>
                   <Grid item xs={2}></Grid>
                   <Grid item xs={3}>
                     <InputLabel>Current Price</InputLabel>
-                    <OutlinedInput label="Current Price" value="100" endAdornment={
-                      <InputAdornment position="end">
-                        <SvgIcon component={getPriceDirection()}/>
-                      </InputAdornment>
-                    } disabled/>
+                    <OutlinedInput label="Current Price" value="100" disabled/>
                   </Grid>
                   
                   <Grid item xs={10}>
@@ -146,10 +122,10 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
                   </Grid>
                   
                   <Grid item xs={5}>
-                      <Button onClick={() => {setAlertType('decrease')} } variant={toggleButton('decrease')} color='error'>Decreases to<SvgIcon component={ArrowDownward}/></Button>
+                      <Button onClick={() => setAlertForm({...alertForm, alert_type: 'decrease'}) } variant={toggleButton('decrease')} color='error'>Decreases to<SvgIcon component={ArrowDownward}/></Button>
                   </Grid> 
                   <Grid item xs={5}>
-                      <Button color="success" onClick={() => {setAlertType('increase')} } variant={toggleButton('increase')}>Increases to<SvgIcon component={ArrowUpward}/></Button>
+                      <Button color="success" onClick={() => setAlertForm({...alertForm, alert_type: 'increase'}) } variant={toggleButton('increase')}>Increases to<SvgIcon component={ArrowUpward}/></Button>
                   </Grid>
                   <Grid item xs={10}>
                     <InputLabel>Alert Price</InputLabel>

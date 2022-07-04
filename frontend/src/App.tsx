@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, AppBar, Container, Toolbar, Alert } from '@mui/material';
-import logo from './logo.svg';
 import './App.css';
 import Header from './components/header';
 import LoginPage from './pages/LoginPage';
 import AlertsPage from './pages/AlertsPage';
 import { User, Token } from './types/models';
 import UserService from './services/user.service';
-import { isNil } from 'lodash';
 
 function App() {
 
@@ -17,8 +14,8 @@ function App() {
   useEffect(() => {
     async function fetchUser(token_checked:Token) {
       const user = await UserService.me(token_checked);
+      user.token = token_checked;
       setUser(user);
-      console.log(user);
     }
     if (token !== null) {
       fetchUser(token);

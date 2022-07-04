@@ -15,9 +15,7 @@ interface LoginProps {
 const LoginPage: FC<LoginProps> = (props: LoginProps) => {
     const defaultValues = {
         email: "",
-        phone_number: "",
-        // alertType: "email",
-        // password: ""
+        phone_number: ""
     };
 
     const [formValues, setFormValues] = useState(defaultValues);

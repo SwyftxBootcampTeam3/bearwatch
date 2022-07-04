@@ -1,5 +1,5 @@
 export interface BaseEntity {
-    id: string;
+    id: number;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -10,7 +10,7 @@ export interface Token {
 }
 
 export interface User extends BaseEntity {
-    token: string;
+    token: Token;
     email: string;
     phone_number: string;
 }
@@ -25,4 +25,5 @@ export interface Alert extends BaseEntity {
     name: string;
     code: string;
     price: number;
+    alert_type: string;
 }

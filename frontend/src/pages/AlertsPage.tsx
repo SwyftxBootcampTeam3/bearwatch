@@ -1,16 +1,33 @@
 import { Typography, Box, Button, SvgIcon, Grid} from '@mui/material';
 import {Add} from '@mui/icons-material'
-import React, { FC, useState } from 'react';
-import BasicTabs from '../components/alertTabs';
+import React, { FC, useEffect, useState } from 'react';
+import AlertGrid from '../components/alertTabs';
 import AlertModal from '../components/modal';
-import { User } from '../types/models';
-
+import { Token, User } from '../types/models';
+import AlertService from '../services/alert.service';
 
 interface AlertsProps {
     user: User;
 }
 
 const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
+
+    const alertTypes = {
+        triggered: [],
+        watching: [],
+        sleeping: []
+    };
+
+    const [alerts, setAlerts] = useState(alertTypes);
+
+    useEffect(() => {
+        async function fetchAlerts(token:Token) {
+          const alerts = await AlertService.get_alerts(token);
+          console.log(alerts);
+          //Sort alerts into 3 states and set alerts
+        }
+        fetchAlerts(props.user.token)
+      },[props.user])
    
     const [addNewAlert, setAddNewAlert] = React.useState(false);
 
@@ -32,15 +49,12 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
                         <Button variant="contained" onClick={() => {setAddNewAlert(true)}}>
                             ADD ALERT
                         </Button>
-                        {addNewAlert && <AlertModal userID="21" isNew={true} toggleModal={toggleModal}/>}
+                        {addNewAlert && <AlertModal isNew={true} toggleModal={toggleModal}/>}
                     </Box>
                 </Grid>
             </Grid>
-            <BasicTabs />
-            
-            
+            <AlertGrid alerts_triggered={alerts.triggered} alerts_sleeping={alerts.sleeping} alerts_watching={alerts.watching}/>
         </Box>
-        
         </>
     )
 }

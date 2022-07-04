@@ -9,11 +9,11 @@ import React, { FC } from 'react';
 import AlertModal from './modal';
 
 interface CardProps {
-    alertId: any,
+    alertId: number,
     coinCode: string;
     alertStatus: string;
     alertType: string;
-    currentPrice: string;
+    currentPrice: number;
   }
 
   const AlertCard: FC<CardProps> = ({ alertId, coinCode, alertStatus, alertType, currentPrice }) => {
@@ -46,10 +46,10 @@ interface CardProps {
           </Grid>
           <Grid item xs={4}><Button variant="contained" onClick={() => {setAddNewAlert(true)}}>
                             <SvgIcon component={EditIcon}/></Button>
-                            {addNewAlert && <AlertModal userID="21" isNew={false} toggleModal={toggleModal} alertId = {alertId}/>}
+                            {addNewAlert && <AlertModal isNew={false} toggleModal={toggleModal} alertId = {alertId}/>}
                             </Grid>
           <Grid item xs={4}><Button variant="contained" ><SvgIcon component={DeleteIcon}/></Button></Grid>
-          <Grid item xs={4}><Button variant="contained" >{ alertStatus === "In Hibernation" ? 
+          <Grid item xs={4}><Button variant="contained" >{ alertStatus === "Sleeping" ? 
           <SvgIcon component={VisibilityIcon}/>: <SvgIcon component={NotificationsPausedIcon}/>}</Button></Grid>
           </Grid>
         </CardContent>
