@@ -4,6 +4,7 @@ import { isNil } from 'lodash';
 import React, { FC, useState } from 'react';
 import UserService from '../services/user.service';
 import { User, Token } from '../types/models';
+import { RegisterRequest } from '../types/requests';
 
 
 interface LoginProps {
@@ -11,19 +12,37 @@ interface LoginProps {
   }
 
 
-  const LoginPage: FC<LoginProps> = (props: LoginProps) => {
+const LoginPage: FC<LoginProps> = (props: LoginProps) => {
     const defaultValues = {
         email: "",
-        ph: "",
+        phone_number: "",
         // alertType: "email",
         // password: ""
     };
 
     const [formValues, setFormValues] = useState(defaultValues);
     const [loginError, setLoginError] = useState<string | null>(null);
+    const [signUp, setSignUp] = useState<boolean>(true);
 
-    const handleSignUp = () => {
-        console.log(formValues)
+    const handleSignUp = async () => {
+        try {
+            const registerRequest: RegisterRequest = {
+                email: formValues.email,
+                phone_number: formValues.phone_number
+            }
+            const res:AxiosResponse = await UserService.register(registerRequest);
+            const token:Token = res.data;
+            props.handleAuth(token);
+        } catch (err:any){
+            if (err.response.status === 400){
+                setLoginError(err.response.data.detail)
+            }else if (err.response.status === 422){
+                setLoginError('Invalid Email/Phone Number!')
+            }
+            else{
+                setLoginError('An unknown error has occured. Please try again later!')
+            }
+        }
     }
 
     const handleLogin = async () => {
@@ -41,8 +60,6 @@ interface LoginProps {
                 setLoginError('An unknown error has occured. Please try again later!')
             }
         }
-        
-       
     }
 
     return (
@@ -56,28 +73,26 @@ interface LoginProps {
         }}
         >
         <Paper variant="outlined" sx={{padding: 10}} square>
-            <Typography variant="h6">Account</Typography>
+            {signUp && <Typography variant="h6">Sign Up</Typography>}
+            {!signUp && <Typography variant="h6">Log In</Typography>}
             <br/>
             <FormGroup>
                 <TextField id="outlined-basic" label="Email" variant="outlined" required onChange={(evt) => { setFormValues({...formValues, email: evt.target.value})}}/>
                 <br/>
-                {/* <TextField id="outlined-basic" label="Password" variant="outlined" type="password" required onChange={(evt) => { setFormValues({...formValues, password: evt.target.value})}}/>
-                <br/> */}
-                <TextField id="outlined-basic" label="Phone Number" variant="outlined" required onChange={(evt) => { setFormValues({...formValues, ph: evt.target.value})}}/>
-                <br/>
-                {/* <FormLabel sx={{display: 'flex',
-                flexDirection: 'row'}} >Notification Type</FormLabel> */}
-                {/* <FormGroup aria-label='Notification Type' sx={{display: 'flex',
-                flexDirection: 'row'}}>
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Email" />
-                    <FormControlLabel control={<Checkbox />} label="SMS" />
-                </FormGroup> */}
-                <div>
+                {signUp && 
+                <>
+                    <TextField id="outlined-basic" label="Phone Number" variant="outlined" required onChange={(evt) => { setFormValues({...formValues, phone_number: evt.target.value})}}/>
+                    <br/>
+                </>
+                }
+                {signUp && 
                     <Button variant="contained" onClick={handleSignUp}>Sign Up</Button>
-                    &nbsp;
-                    <Button variant="contained" onClick={handleLogin}>Login</Button>
-                </div>
+                }
+                {!signUp && 
+                <Button variant="contained" onClick={handleLogin}>Login</Button>
+                }
             </FormGroup>
+        <Button variant="text">Log in</Button>
         </Paper>
         </Box>
         {loginError !== null && <Alert severity='error' onClose={() => {setLoginError(null)}}>{loginError}</Alert>}

@@ -17,7 +17,6 @@ export default class UserService {
     }
 
     static async login(userEmail:string): Promise<AxiosResponse> {
-
         const config = {
             method: 'post',
             url: `${URL.APP}/${URL.USERS}/login/?email=${userEmail}`
@@ -26,8 +25,15 @@ export default class UserService {
         return response;
     }
 
-    // static async register(request: RegisterRequest): Promise<User> {
-    //     const user = await API.post<User>(`${URL.USERS}`, request);
-    //     return user;
-    // }
+    static async register(request: RegisterRequest): Promise<AxiosResponse> {
+        const config = {
+            method: 'post',
+            url: `${URL.APP}/${URL.USERS}`,
+            data: {
+                request
+            }
+        }
+        const response = await axios(config)
+        return response;
+    }
 }

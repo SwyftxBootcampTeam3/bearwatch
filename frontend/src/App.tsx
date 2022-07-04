@@ -30,7 +30,7 @@ function App() {
     <div className="App">
     <Header title='BearWatch' subtitle='A subtitle' user='TestUser'/>
     {user === null && <LoginPage handleAuth={setToken}/>}
-    {user !== null && <AlertsPage />}
+    {user !== null && <AlertsPage user={user}/>}
     </div>
   );
 }

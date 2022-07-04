@@ -1,4 +1,4 @@
 export interface RegisterRequest {
     email: string;
-    phone_number: number;
+    phone_number: string;
 }

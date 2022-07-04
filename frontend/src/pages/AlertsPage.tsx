@@ -1,16 +1,21 @@
 import { Typography, Box, Button, SvgIcon, Grid} from '@mui/material';
 import {Add} from '@mui/icons-material'
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import BasicTabs from '../components/alertTabs';
 import AlertModal from '../components/modal';
+import { User } from '../types/models';
 
-export default function AlertsPage() {
+
+interface AlertsProps {
+    user: User;
+}
+
+const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
    
     const [addNewAlert, setAddNewAlert] = React.useState(false);
 
     const toggleModal = () => {
         setAddNewAlert(!addNewAlert)
-        console.log('toggleModal')
     }
     return (
         <>
@@ -39,3 +44,4 @@ export default function AlertsPage() {
         </>
     )
 }
+export default AlertsPage;

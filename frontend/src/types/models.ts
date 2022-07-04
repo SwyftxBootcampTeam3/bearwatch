@@ -12,7 +12,7 @@ export interface Token {
 export interface User extends BaseEntity {
     token: string;
     email: string;
-    phone_number: number;
+    phone_number: string;
 }
 
 export interface Asset extends BaseEntity {

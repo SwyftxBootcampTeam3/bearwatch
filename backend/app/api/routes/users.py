@@ -10,7 +10,7 @@ from app.api.dependencies.auth import get_current_user
 
 # models
 from app.models.token import AccessToken
-from app.models.user import UserCreate, User, UserPublic
+from app.models.user import UserCreate, User
 
 # repositories
 from app.db.repositories.users import UsersRepository
@@ -23,32 +23,31 @@ router = APIRouter()
 # name the route and you can use it across testing and db access
 
 
-@router.get("/me", response_model=UserPublic, name="users:get-user")
+@router.get("/me", response_model=User, name="users:get-user")
 async def get_user(
     current_user: User = Depends(get_current_user),
-) -> UserPublic:
+) -> User:
 
     return current_user
 
 
 @router.post(
     "/",
-    response_model=UserPublic,
+    response_model=AccessToken,
     name="users:create-user",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
-    new_user: UserCreate = Body(..., embed=True),  # we pass in body of json
+    request: UserCreate = Body(..., embed=True),  # we pass in body of json
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
     auth_service: AuthService = Depends(AuthService)
-) -> UserPublic:
+) -> AccessToken:
     """
     Creates a new user and returns a public model including access token (JWT)
     """
 
     # register user (send UserCreate to db, receive UserInDB)
-
-    created_user = await user_repo.create_user(new_user=new_user)
+    created_user = await user_repo.create_user(new_user=request)
 
     # create JWT and attach to UserPublic model
 
@@ -63,7 +62,7 @@ async def create_user(
     # profile attachment done in repository
 
     # return a public model
-    return created_user.copy(update={"access_token": access_token})
+    return access_token
 
 
 @router.post(

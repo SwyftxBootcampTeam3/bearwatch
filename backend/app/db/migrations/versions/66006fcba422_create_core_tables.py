@@ -27,7 +27,7 @@ def create_user_table() -> None:
         "users",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("email", sa.Text, unique=True, nullable=False, index=True),
-        sa.Column("phone_number", sa.Integer, unique=True, nullable=True),
+        sa.Column("phone_number", sa.Text, unique=True, nullable=True),
         sa.Column("created_at", sa.DateTime, server_default=sa.func.now()),
         sa.Column("updated_at", sa.DateTime,
                   server_default=sa.func.now(), onupdate=sa.func.now()),
