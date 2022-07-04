@@ -16,7 +16,8 @@ import {AppBar,
         InputAdornment,
         InputLabel,
         Autocomplete,
-        getAlertTitleUtilityClass} from '@mui/material';
+        getAlertTitleUtilityClass,
+        Hidden} from '@mui/material';
 import { ArrowUpward, ArrowDownward, PropaneSharp } from '@mui/icons-material';
 import {Add} from '@mui/icons-material'
 import { send } from 'process';
@@ -30,7 +31,8 @@ import { send } from 'process';
 interface ModalProps {
   userID: string,
   isNew: boolean,
-  toggleModal: any
+  toggleModal: any,
+  alertId?: any
 }
 
 const AlertModal: FC<ModalProps> = (props: ModalProps) => {
@@ -93,6 +95,9 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
 
     /** If aler */
     const getAlertData = () => {
+      //TODO
+      //use alertId
+      //return coin type, alert type and current alert price
       return {}
     }
 
@@ -102,6 +107,7 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       }
       return "Edit Existing Alert"
     }
+
 
     return (
       <>
@@ -116,11 +122,14 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
               </Typography>
               <FormGroup>
                 <Grid container rowGap={3} columns={10}>
-                  <Grid item xs={5} >
-                    <InputLabel>Select a coin</InputLabel>
-                    <Autocomplete disablePortal 
-                    renderInput={(params) => <TextField {...params} placeholder="Select coin..." />}
-                    options={coins}/>
+                  <Grid item xs={5}>
+                  <InputLabel>Coin</InputLabel>
+                  <Autocomplete disablePortal 
+                      renderInput={(params) => <TextField {...params} defaultValue="TODO" />}
+                      options={coins} hidden = {props.isNew}/>
+                  <Autocomplete disablePortal 
+                      renderInput={(params) => <TextField {...params} placeholder="Select coin..." />}
+                      options={coins} hidden = {!props.isNew}/>
                   </Grid>
                   <Grid item xs={2}></Grid>
                   <Grid item xs={3}>
