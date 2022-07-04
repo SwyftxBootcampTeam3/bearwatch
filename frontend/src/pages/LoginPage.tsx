@@ -1,7 +1,17 @@
-import { Container, FormGroup, TextField, Paper, Box, FormControlLabel, Checkbox, FormLabel, Button, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { Container, FormGroup, TextField, Paper, Box, FormControlLabel, Checkbox, FormLabel, Button, Typography, Alert } from '@mui/material';
+import { AxiosError, AxiosResponse } from 'axios';
+import { isNil } from 'lodash';
+import React, { FC, useState } from 'react';
+import UserService from '../services/user.service';
+import { User, Token } from '../types/models';
 
-export default function LoginPage() {
+
+interface LoginProps {
+    handleAuth:(token: Token) => void;
+  }
+
+
+  const LoginPage: FC<LoginProps> = (props: LoginProps) => {
     const defaultValues = {
         email: "",
         ph: "",
@@ -10,13 +20,29 @@ export default function LoginPage() {
     };
 
     const [formValues, setFormValues] = useState(defaultValues);
+    const [loginError, setLoginError] = useState<string | null>(null);
 
     const handleSignUp = () => {
         console.log(formValues)
     }
 
-    const handleLogin = () => {
-        console.log(formValues)
+    const handleLogin = async () => {
+        try {
+            const res:AxiosResponse = await UserService.login(formValues.email);
+            const token:Token = res.data;
+            props.handleAuth(token);
+        } catch (err:any){
+            if (err.response.status === 401){
+                setLoginError('No account exists with this email!')
+            }else if (err.response.status === 422){
+                setLoginError('Invalid Email!')
+            }
+            else{
+                setLoginError('An unknown error has occured. Please try again later!')
+            }
+        }
+        
+       
     }
 
     return (
@@ -54,7 +80,9 @@ export default function LoginPage() {
             </FormGroup>
         </Paper>
         </Box>
+        {loginError !== null && <Alert severity='error' onClose={() => {setLoginError(null)}}>{loginError}</Alert>}
     </>
     )
     
 }
+export default LoginPage;
