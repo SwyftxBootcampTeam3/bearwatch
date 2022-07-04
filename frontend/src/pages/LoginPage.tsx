@@ -37,7 +37,7 @@ const LoginPage: FC<LoginProps> = (props: LoginProps) => {
             if (err.response.status === 400){
                 setLoginError(err.response.data.detail)
             }else if (err.response.status === 422){
-                setLoginError('Invalid Email/Phone Number!')
+                setLoginError('Invalid Email!')
             }
             else{
                 setLoginError('An unknown error has occured. Please try again later!')

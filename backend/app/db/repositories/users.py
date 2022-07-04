@@ -14,6 +14,9 @@ from app.db.repositories.base import BaseRepository
 from app.models.user import UserCreate, UserUpdate, User
 from app.models.token import AccessToken
 
+# Utils
+from app.services.utils import valid_phone_number
+
 CREATE_USER_QUERY = """
     INSERT INTO users (email,phone_number)
     VALUES (:email,:phone_number)
@@ -115,6 +118,12 @@ class UsersRepository(BaseRepository):
         """
         Creates a user.
         """
+
+        if not valid_phone_number(new_user.phone_number):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="That phone number is invalid!",
+            )
 
         # unique constraints exist on email & phome -> confirm both are not taken
         user_exists = await self.check_user_already_exists(email=new_user.email, phone_number=new_user.phone_number)

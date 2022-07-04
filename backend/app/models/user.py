@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from pydantic import EmailStr
 from app.models.core import IDModelMixin, DateTimeModelMixin, CoreModel
