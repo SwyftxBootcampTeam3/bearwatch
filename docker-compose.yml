@@ -6,6 +6,7 @@ services:
     build: ./frontend
     ports:
       - 3000:3000
+
   server:
     build:
       context: ./backend
@@ -19,6 +20,7 @@ services:
       - 9191:9191
     depends_on:
       - db
+
   db:
     image: postgres:13-alpine
     volumes:
@@ -27,73 +29,31 @@ services:
       - ./backend/.env
     ports:
       - 5432:5432 #https://docs.docker.com/compose/networking/
-  
-  # # seaweedFS
-  # master: 
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   ports:
-  #     - 9333:9333
-  #     - 19333:19333
-  #   command: "master -ip=master"
-  # volume:
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   ports:
-  #     - 8080:8080
-  #     - 18080:18080
-  #     - 9325:9325
-  #   command: 'volume -mserver="master:9333" -port=8080  -metricsPort=9325'
-  #   depends_on:
-  #     - master
-  # filer:
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   ports:
-  #     - 8888:8888
-  #     - 18888:18888
-  #     - 9326:9326
-  #   command: 'filer -master="master:9333"  -metricsPort=9326'
-  #   tty: true
-  #   stdin_open: true
-  #   depends_on:
-  #   - master
-  #   - volume
-  # cronjob:
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   command: 'cronjob'
-  #   environment:
-  #     # Run re-replication every 2 minutes
-  #     CRON_SCHEDULE: '*/2 * * * * *' # Default: '*/5 * * * * *'
-  #     WEED_MASTER: master:9333 # Default: localhost:9333
-  #   depends_on:
-  #     - master
-  #     - volume
-  # s3:
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   ports:
-  #     - 8333:8333
-  #     - 9327:9327
-  #   command: 's3 -filer="filer:8888" -metricsPort=9327'
-  #   depends_on:
-  #     - master
-  #     - volume
-  #     - filer
-  # webdav:
-  #   image: chrislusf/seaweedfs # use a remote image
-  #   ports:
-  #     - 7333:7333
-  #   command: 'webdav -filer="filer:8888"'
-  #   depends_on:
-  #     - master
-  #     - volume
-  #     - filer
-  # prometheus:
-  #   image: prom/prometheus:v2.21.0
-  #   ports:
-  #     - 9000:9090
-  #   volumes:
-  #     - ./prometheus:/etc/prometheus
-  #   command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
-  #   depends_on:
-  #     - s3
+  redis:
+    image: redis:6.2-alpine
+
+  celery_worker:
+    build: ./backend
+    command: celery --workdir ./app/services -A celery_worker.celery worker --loglevel=info
+    volumes:
+      - ./backend/:/backend/
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - server
+      - redis
+
+  flower:
+    build: ./backend
+    command: celery --workdir ./app/services -A celery_worker.celery flower -port=5555
+    ports:
+      - 5556:5555
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - server
+      - redis
+      - celery_worker
 
 volumes:
     postgres_data:
