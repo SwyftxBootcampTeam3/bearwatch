@@ -7,7 +7,7 @@ RUN apt-get update \
     && apt-get -y install netcat gcc postgresql \
     && apt-get clean
 # install python dependencies
-RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
 COPY ./requirements.txt /backend/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 COPY . /backend
