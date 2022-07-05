@@ -10,6 +10,8 @@
 import warnings
 import os
 
+from sqlalchemy import true
+
 from app.core.config import JWT_TOKEN_PREFIX
 
 from typing import List, Callable
@@ -96,7 +98,7 @@ async def client(app: FastAPI) -> AsyncClient:
 async def test_user(db: Database) -> User:
     test_user = UserCreate(
         email="conf@test.com",
-        phone_number = 1234567890,
+        phone_number = "1234567890",
     )
 
     user_repo = UsersRepository(db)
@@ -200,62 +202,26 @@ async def test_user_list(
 ) -> List[User]:
     return [test_user1, test_user2, test_user3]
 
-# # ALERTS - creates a test_alert belonging to test_user1
-# @pytest.fixture
-# async def org1_test_post(db: Database, test_user1: test_user1) -> Alert:
-#     """
-#     Alerts owned created by test_user1
-#     """
-#     # get repo's from db
-#     alerts_repo = AlertsRepository(db)
+# ALERTS - creates a test_alert belonging to test_user1
+@pytest.fixture
+async def org1_test_post(db: Database, test_user1: test_user1) -> Alert:
+    """
+    Alerts owned created by test_user1
+    """
+    # get repo's from db
+    alerts_repo = AlertsRepository(db)
 
-#     # make a post with test_org1 as owner
-#     local_new_post = AlertCreate(
-#         asset_id=1,
-#         price=2,
+    # make a post with test_user1
+    local_new_post = AlertCreate(
+        asset_id=1,
+        price=2.00,
+        alert_type="true",
+        user_id=1
+    )
 
-#     )
+    # create post in repo
+    created_post = await alerts_repo.create_alert(
+        new_alert=local_new_post, current_user=test_user1
+    )
 
-#     # create post in repo
-#     created_post = await post_repo.create_post(
-#         new_post=local_new_post, requesting_user=test_org1
-#     )
-
-#     return created_post
-
-
-# # POSTS + INTERESTED
-# @pytest.fixture
-# async def test_post_with_applications(
-#     db: Database, test_org1: UserInDB, test_user_list: List[UserInDB]
-# ) -> PostInDB:
-#     """
-#     Post owned by testorg1 with interest from testuser1,2,3
-#     """
-#     # get repo's from db
-#     post_repo = PostsRepository(db)
-
-#     # make a post with test_org1 as owner
-#     local_new_post = PostCreate(
-#         title="fixture test post with interested",
-#         short_desc="fixture short desc",
-#         long_desc="fixture long desc",
-#         location="fixture location",
-#     )
-
-#     # create post in repo
-#     created_post = await post_repo.create_post(
-#         new_post=local_new_post, requesting_user=test_org1
-#     )
-
-#     # create 'interested in this' for all of the testusers
-#     for user in test_user_list:
-#         # repo.create_interested_in_post() TODO: implement interested in post
-#         interested = user.is_org
-
-#     return created_post
-
-
-# # HELPER - creates a post belonging to the passed in user
-# async def helper_create_post_with_applications() -> None:
-#     pass
+    return created_post
