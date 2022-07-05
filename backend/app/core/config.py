@@ -40,3 +40,7 @@ DATABASE_URL = config(
 )
 DB_MIN_CONNECTIONS = config("DB_MIN_CONNECTIONS", cast=int, default=2)
 DB_MAX_CONNECTIONS = config("DB_MAX_CONNECTIONS", cast=int, default=10)
+
+#TWILIO
+ACCOUNT_SID = config("ACCOUNT_SID", cast=str)
+AUTH_TOKEN = config("ACCOUNT_SID", cast=str)
