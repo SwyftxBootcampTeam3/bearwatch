@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import {Tabs, Tab, Typography, Box, Grid} from '@mui/material';
 import AlertCard from './alertCard';
-import { Alert } from '../types/models';
+import { Alert, User } from '../types/models';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -48,6 +48,7 @@ interface AlertGridProps {
     alerts_triggered: Alert[];
     alerts_watching: Alert[];
     alerts_sleeping: Alert[];
+    user: User;
 }
 
 const AlertGrid: FC<AlertGridProps> = (props: AlertGridProps) => {
@@ -69,17 +70,17 @@ const AlertGrid: FC<AlertGridProps> = (props: AlertGridProps) => {
         <TabPanel value={value} index={0}>
         <Grid container columns={4} gap={2}>
             {Array.from(props.alerts_triggered).map((_, index) => (
-                <Grid item xs={1}><AlertCard alertId = {index} coinCode={props.alerts_triggered[index].code} alertStatus='Triggered' alertType = {props.alerts_triggered[index].alert_type} currentPrice = {props.alerts_triggered[index].price}/></Grid>
+                <Grid item xs={1}><AlertCard user={props.user} alertId = {index} coinCode={props.alerts_triggered[index].code} alertStatus='Triggered' alertType = {props.alerts_triggered[index].alert_type} currentPrice = {props.alerts_triggered[index].price}/></Grid>
             ))}
             {Array.from(props.alerts_watching).map((_, index) => (
-                 <Grid item xs={1}><AlertCard alertId = {index} coinCode={props.alerts_watching[index].code} alertStatus='Watching' alertType = {props.alerts_watching[index].alert_type} currentPrice = {props.alerts_watching[index].price}/></Grid>
+                 <Grid item xs={1}><AlertCard user={props.user} alertId = {index} coinCode={props.alerts_watching[index].code} alertStatus='Watching' alertType = {props.alerts_watching[index].alert_type} currentPrice = {props.alerts_watching[index].price}/></Grid>
             ))}
           </Grid>
         </TabPanel>
         <TabPanel value={value} index={1}>
         <Grid container columns={4} gap={2}>
             {Array.from(props.alerts_sleeping).map((_, index) => (
-                 <Grid item xs={1}><AlertCard alertId = {index} coinCode={props.alerts_sleeping[index].code} alertStatus='Sleeping' alertType = {props.alerts_sleeping[index].alert_type} currentPrice = {props.alerts_sleeping[index].price}/></Grid>
+                 <Grid item xs={1}><AlertCard user={props.user} alertId = {index} coinCode={props.alerts_sleeping[index].code} alertStatus='Sleeping' alertType = {props.alerts_sleeping[index].alert_type} currentPrice = {props.alerts_sleeping[index].price}/></Grid>
             ))}
           </Grid>
         </TabPanel>

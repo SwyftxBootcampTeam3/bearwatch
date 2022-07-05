@@ -3,7 +3,7 @@ import {Add} from '@mui/icons-material'
 import React, { FC, useEffect, useState } from 'react';
 import AlertGrid from '../components/alertTabs';
 import AlertModal from '../components/modal';
-import { Token, User } from '../types/models';
+import { Alert, Token, User } from '../types/models';
 import AlertService from '../services/alert.service';
 
 interface AlertsProps {
@@ -12,19 +12,28 @@ interface AlertsProps {
 
 const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
 
-    const alertTypes = {
+    interface alertTypes  {
+        triggered: Alert[];
+        watching: Alert[];
+        sleeping: Alert[];
+    }
+
+    const alertsDefault: alertTypes = {
         triggered: [],
         watching: [],
         sleeping: []
     };
 
-    const [alerts, setAlerts] = useState(alertTypes);
+    const [alertsSorted, setAlertsSorted] = useState(alertsDefault);
 
     useEffect(() => {
         async function fetchAlerts(token:Token) {
           const alerts = await AlertService.get_alerts(token);
-          console.log(alerts);
-          //Sort alerts into 3 states and set alerts
+          setAlertsSorted({
+            watching: alerts.filter(a => !a.triggered && a.active), 
+            triggered: alerts.filter(a => a.triggered && a.active), 
+            sleeping: alerts.filter(a => !a.active)})
+          console.log(alertsSorted);
         }
         fetchAlerts(props.user.token)
       },[props.user])
@@ -49,11 +58,16 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
                         <Button variant="contained" onClick={() => {setAddNewAlert(true)}}>
                             ADD ALERT
                         </Button>
-                        {addNewAlert && <AlertModal isNew={true} toggleModal={toggleModal}/>}
+                        {addNewAlert && <AlertModal user={props.user} isNew={true} toggleModal={toggleModal}/>}
                     </Box>
                 </Grid>
             </Grid>
-            <AlertGrid alerts_triggered={alerts.triggered} alerts_sleeping={alerts.sleeping} alerts_watching={alerts.watching}/>
+            <AlertGrid 
+            user = {props.user}
+            alerts_triggered={alertsSorted.triggered} 
+            alerts_sleeping={alertsSorted.sleeping} 
+            alerts_watching={alertsSorted.watching
+            }/>
         </Box>
         </>
     )

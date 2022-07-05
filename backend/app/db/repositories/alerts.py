@@ -17,23 +17,23 @@ from app.models.alert import Alert, AlertCreate, AlertUpdate
 CREATE_ALERT_QUERY = """
     INSERT INTO alerts (user_id,asset_id,price,alert_type)
     VALUES (:user_id,:asset_id,:price,:alert_type)
-    RETURNING id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    RETURNING id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at;
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
     FROM alerts
     WHERE id = :id AND soft_delete = false;
 """
 
 GET_ALERT_BY_USER_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
     FROM alerts
     WHERE user_id = :user_id AND soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
     FROM alerts
     WHERE soft_delete = false;
 """

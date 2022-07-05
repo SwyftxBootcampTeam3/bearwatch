@@ -34,13 +34,18 @@ async def get_user_alerts(
 
 @router.post("/", response_model=Alert, name="alerts:create-alert")
 async def create_alert(
-    new_alert: AlertCreate = Body(..., embed=True),
+    request: AlertCreate = Body(..., embed=True),
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
 
-    new_alert.user_id = current_user.id
-    alert = await alerts_repo.create_alert(new_alert=new_alert)
+    if current_user.id != request.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You can only create an alert for yourself!",
+        )
+
+    alert = await alerts_repo.create_alert(new_alert=request)
     return alert
 
 

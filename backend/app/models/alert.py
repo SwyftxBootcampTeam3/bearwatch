@@ -13,7 +13,7 @@ class AlertBase(CoreModel):
     """
 
     asset_id: int
-    price: int
+    price: float
     alert_type: bool
 
 
@@ -33,6 +33,8 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
 
     user_id: int
     soft_delete: bool
+    active: bool
+    triggered: bool
 
 
 class AlertUpdate(AlertBase):

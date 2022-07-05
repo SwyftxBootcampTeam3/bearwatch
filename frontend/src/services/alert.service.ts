@@ -14,7 +14,7 @@ export default class AlertService {
         return alerts;
     }
 
-    static async create_alert(token: Token, request: CreateAlertRequest): Promise<Alert> {
+    static async create_alert(token: Token, request: CreateAlertRequest): Promise<AxiosResponse> {
         const config = {
             method: 'post',
             url: `${URL.APP}/${URL.ALERTS}/`,

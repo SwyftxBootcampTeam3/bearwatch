@@ -26,4 +26,6 @@ export interface Alert extends BaseEntity {
     code: string;
     price: number;
     alert_type: string;
+    active: boolean;
+    triggered: boolean;
 }

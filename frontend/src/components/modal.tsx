@@ -17,11 +17,16 @@ import {AppBar,
         InputLabel,
         Autocomplete,
         getAlertTitleUtilityClass,
-        Hidden} from '@mui/material';
+        Hidden,
+        Alert as AlertToast} from '@mui/material';
 import { ArrowUpward, ArrowDownward, PropaneSharp } from '@mui/icons-material';
 import {Add} from '@mui/icons-material'
 import { send } from 'process';
-import { Asset } from '../types/models';
+import { Alert, Asset, User } from '../types/models';
+import { isNil } from 'lodash';
+import { CreateAlertRequest } from '../types/requests';
+import AlertService from '../services/alert.service';
+import { AxiosResponse } from 'axios';
 
 /**
  * ModalProps:
@@ -32,6 +37,7 @@ import { Asset } from '../types/models';
 interface ModalProps {
   isNew: boolean,
   toggleModal: any,
+  user: User,
   alertId?: any
 }
 
@@ -49,26 +55,53 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       p: 4,
     };
 
-    const defaultAlertForm = {
-      asset_id: null,
-      price: null,
-      alert_type: 'decrease'
-    }
-
     const assets:Asset[] = [
-      {id: 1, name: 'Test Coin', code: 'TST', price:0}
+      {id: 1, name: 'Test Coin', code: 'TST', price:0},
+      {id: 2, name: 'Bear Coin', code: 'Bear', price:10}
     ]
 
-    const [alertForm, setAlertForm] = React.useState(defaultAlertForm);
+    const [alertType, setAlertType] = React.useState<string>('decrease');
+    const [asset, setAsset] = React.useState<Asset | null>(null);
+    const [price, setPrice] = React.useState<string | null>(null);
+
+    const [validationError, setValidationError] = React.useState<string | null>(null);
     
 
     /** Sends alert form to database to create the alert */
-    const createAlert = () => {
-      console.log(alertForm);
+    const createAlert = async () => {
+      //Validate Entries
+      if (!isNil(asset)){
+        const validAsset:Asset = asset;
+        if(!isNil(price)){
+            const validPrice:number = Number(price);
+            if (!isNil(validPrice) && !isNaN(validPrice) && !(validPrice <= 0)){
+              try {
+                const createAlertRequest: CreateAlertRequest = {
+                    asset_id:validAsset.id,
+                    price:validPrice,
+                    alert_type: (alertType === "increase") ? true : false,
+                    user_id: props.user.id
+                }
+                const res:AxiosResponse = await AlertService.create_alert(props.user.token,createAlertRequest);
+                const alert:Alert = res.data;
+            } catch (err:any){
+                if (err.response.status === 400){
+                  setValidationError(err.response.data.detail)
+                }else{
+                  setValidationError('An unknown error has occured. Please try again later!')
+                }
+            }
+            }else{
+          setValidationError('Invalid price!')
+        }
+        }
+      }else{
+        setValidationError('You must select an asset!')
+      }
     }
 
     function toggleButton(dir: string) {
-      if (dir === alertForm.alert_type) {
+      if (dir === alertType) {
         return 'contained'
       } else {
         return 'outlined'
@@ -76,13 +109,6 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
 
     }
 
-    /** If aler */
-    const getAlertData = () => {
-      //TODO
-      //use alertId
-      //return coin type, alert type and current alert price
-      return {}
-    }
 
     const getAlertTitle = () => {
       if (props.isNew) {
@@ -108,13 +134,22 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
                   <Grid item xs={5}>
                   <InputLabel>Coin</InputLabel>
                   <Autocomplete disablePortal 
+                      value={asset}
+                      onChange={(event: any, newValue: Asset | null) => {
+                        if (!isNil(newValue)){
+                          setAsset(newValue);
+                        }
+                      }}
                       renderInput={(params) => <TextField {...params} placeholder="Select coin..." />}
-                      options={assets.map(a => a.name)} hidden = {!props.isNew} onChange={(e) => console.log(e)}/>
+                      options={assets} 
+                      getOptionLabel={(option) => option.name}
+                      hidden = {!props.isNew} 
+                      />
                   </Grid>
                   <Grid item xs={2}></Grid>
                   <Grid item xs={3}>
                     <InputLabel>Current Price</InputLabel>
-                    <OutlinedInput label="Current Price" value="100" disabled/>
+                    <OutlinedInput label="Current Price" value={asset?.price} disabled/>
                   </Grid>
                   
                   <Grid item xs={10}>
@@ -122,21 +157,22 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
                   </Grid>
                   
                   <Grid item xs={5}>
-                      <Button onClick={() => setAlertForm({...alertForm, alert_type: 'decrease'}) } variant={toggleButton('decrease')} color='error'>Decreases to<SvgIcon component={ArrowDownward}/></Button>
+                      <Button onClick={() => setAlertType('decrease') } variant={toggleButton('decrease')} color='error'>Decreases to<SvgIcon component={ArrowDownward}/></Button>
                   </Grid> 
                   <Grid item xs={5}>
-                      <Button color="success" onClick={() => setAlertForm({...alertForm, alert_type: 'increase'}) } variant={toggleButton('increase')}>Increases to<SvgIcon component={ArrowUpward}/></Button>
+                      <Button color="success" onClick={() => setAlertType('increase') } variant={toggleButton('increase')}>Increases to<SvgIcon component={ArrowUpward}/></Button>
                   </Grid>
                   <Grid item xs={10}>
                     <InputLabel>Alert Price</InputLabel>
                     <OutlinedInput startAdornment={
                     <InputAdornment position='start'>
                       AUD $
-                    </InputAdornment>}/>
+                    </InputAdornment>} onChange={(evt) => { setPrice( evt.target.value)}}/>
                   </Grid>
                   <Grid item xs={10}>
-                    <Button variant="contained">Create alert</Button>
+                    <Button variant="contained" onClick={createAlert}>Create alert</Button>
                   </Grid>
+                {validationError !== null && <AlertToast severity='error' onClose={() => {setValidationError(null)}}>{validationError}</AlertToast>}
                 </Grid>
               </FormGroup>
             </Paper>

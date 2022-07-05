@@ -7,4 +7,5 @@ export interface CreateAlertRequest {
     asset_id: number;
     price: number;
     alert_type: boolean;
+    user_id: number;
 }
