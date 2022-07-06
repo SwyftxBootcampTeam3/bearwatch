@@ -3,9 +3,14 @@ from twilio.rest import Client
 # credit https://www.twilio.com/docs/sms/send-messages
 
 #environment variables
-from app.core import config
+# from app.core import config
+from starlette.config import Config
 
-client = Client(config.ACCOUNT_SID, config.AUTH_TOKEN)
+config = Config(".env")
+
+# client = Client(config.ACCOUNT_SID, config.AUTH_TOKEN)
+
+client = Client(config("ACCOUNT_SID", cast=str), config("AUTH_TOKEN", cast=str))
 
 def create_message(coin_name: str, coin_code:str, alert_price: int):
     price_string = str(alert_price)
