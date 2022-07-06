@@ -1,9 +1,8 @@
-from typing import Optional, List
+from typing import List
 from asyncpg import ForeignKeyViolationError
 from databases import Database
 
 # app
-from pydantic import EmailStr
 from fastapi import HTTPException, status
 
 # repositories

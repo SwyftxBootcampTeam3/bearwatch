@@ -1,6 +1,4 @@
-from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr  # JWT
 
 

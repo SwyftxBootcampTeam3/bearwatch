@@ -11,8 +11,7 @@ from app.db.repositories.base import BaseRepository
 # from app.db.repositoris.profiles import ProfilesRepository
 
 # models
-from app.models.user import UserCreate, UserUpdate, User
-from app.models.token import AccessToken
+from app.models.user import UserCreate, User
 
 # Utils
 from app.services.utils import valid_phone_number

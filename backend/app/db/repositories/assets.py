@@ -1,8 +1,7 @@
-from typing import List, Optional
+from typing import List
 from databases import Database
 
 # app
-from pydantic import EmailStr
 from fastapi import HTTPException, status
 
 # repositories

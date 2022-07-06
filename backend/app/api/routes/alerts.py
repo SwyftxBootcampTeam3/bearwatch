@@ -1,7 +1,5 @@
 from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import null  # JWT
 
 
 # dependencies
@@ -9,14 +7,12 @@ from app.api.dependencies.database import get_repository
 from app.api.dependencies.auth import get_current_user
 
 # models
-from app.models.token import AccessToken
 from app.models.alert import Alert, AlertCreate, AlertUpdate
 
 # repositories
 from app.db.repositories.alerts import AlertsRepository
 
 # services
-from app.services.authentication import AuthService
 from app.models.user import User
 
 router = APIRouter()
