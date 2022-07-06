@@ -12,15 +12,15 @@ jobs:
     - name: Login to Github Container Registry
       uses: docker/login-action@v1
       with:
-        registry: gchr.io
+        registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.ACTIONS_PAT }}
         
     - name: Build the Docker image
       run: |
-        docker build . --file ./backend/Dockerfile --tag gchr.io/stevoAbr/bearwatch:$(date +%s)
-        docker run gchr.io/stevoAbr/bearwatch:$(date +%s)
-        docker push gchr.io/stevoAbr/bearwatch:$(date +%s)
+        docker build . --file ./backend/Dockerfile --tag ghcr.io/stevoAbr/bearwatch:$(date +%s)
+        docker run gchcr.io/stevoAbr/bearwatch:$(date +%s)
+        docker push ghcr.io/stevoAbr/bearwatch:$(date +%s)
   
   build-frontend:
     runs-on: ubuntu-latest
