@@ -1,4 +1,3 @@
-from turtle import update
 from typing import List, Optional
 from databases import Database
 

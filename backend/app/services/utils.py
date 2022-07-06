@@ -1,21 +1,6 @@
 import re
-import json
-import time
-from pytest import param
-from typing import Optional
-from databases import Database
 import requests
-from sqlalchemy import JSON
-from backend.app.api.dependencies import database
-from backend.app.api.dependencies.database import get_repository
-
-from backend.app.db.repositories.users import UsersRepository
-from backend.app.models.user import UserCreate
-from backend.app.models.asset import AssetCreate
-from backend.app.db.repositories.assets import AssetsRepository
-#from app.api.dependencies.database import get_repository
-#from app.db.repositories.assets import AssetsRepository
-
+from app.api.dependencies.database import get_repository
 
 # Rachel's Swyftx API key (read-only)
 apiKey = "MLVMH30Y-QZcXoRpUArvBAK4NvMP5m5-UxmV3JMiQ4eTm"
