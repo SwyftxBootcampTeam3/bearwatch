@@ -27,8 +27,8 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
   const [alertsSorted, setAlertsSorted] = useState(alertsDefault);
   const [assets, setAssets] = useState<Asset[]>([]);
 
-  async function fetchAlerts(token: Token) {
-    const alerts = await AlertService.get_alerts(token);
+  async function fetchAlerts() {
+    const alerts = await AlertService.get_alerts(props.user.token);
     setAlertsSorted({
       watching: alerts.filter((a) => !a.triggered && a.active),
       triggered: alerts.filter((a) => a.triggered && a.active),
@@ -36,14 +36,14 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
     });
   }
 
-  async function fetchAssets(token: Token) {
-    const assets = await AssetService.get_assets(token);
+  async function fetchAssets() {
+    const assets = await AssetService.get_assets(props.user.token);
     setAssets(assets);
   }
 
   useEffect(() => {
-    fetchAlerts(props.user.token);
-    fetchAssets(props.user.token);
+    fetchAlerts();
+    fetchAssets();
   }, []);
 
   const [addNewAlert, setAddNewAlert] = React.useState(false);
@@ -78,6 +78,7 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
                   user={props.user}
                   toggleModal={toggleModal}
                   assets={assets}
+                  updateAlerts={fetchAlerts}
                 />
               )}
             </Box>
@@ -88,6 +89,7 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
           alerts_triggered={alertsSorted.triggered}
           alerts_sleeping={alertsSorted.sleeping}
           alerts_watching={alertsSorted.watching}
+          updateAlerts={fetchAlerts}
         />
       </Box>
     </>

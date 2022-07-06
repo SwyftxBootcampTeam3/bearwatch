@@ -29,4 +29,43 @@ export default class AlertService {
     const response = await axios(config);
     return response.data;
   }
+
+  static async delete_alert(
+    alert_id: number,
+    token: Token
+  ): Promise<AxiosResponse> {
+    const config = {
+      method: "delete",
+      url: `${URL.APP}/${URL.ALERTS}/?alert_id=${alert_id}`,
+      headers: { Authorization: `${token.token_type} ${token.access_token}` },
+    };
+    const response = await axios(config);
+    return response;
+  }
+
+  static async sleep_alert(
+    alert_id: number,
+    token: Token
+  ): Promise<AxiosResponse> {
+    const config = {
+      method: "put",
+      url: `${URL.APP}/${URL.ALERTS}/sleep/?alert_id=${alert_id}`,
+      headers: { Authorization: `${token.token_type} ${token.access_token}` },
+    };
+    const response = await axios(config);
+    return response;
+  }
+
+  static async unsleep_alert(
+    alert_id: number,
+    token: Token
+  ): Promise<AxiosResponse> {
+    const config = {
+      method: "put",
+      url: `${URL.APP}/${URL.ALERTS}/unsleep/?alert_id=${alert_id}`,
+      headers: { Authorization: `${token.token_type} ${token.access_token}` },
+    };
+    const response = await axios(config);
+    return response;
+  }
 }

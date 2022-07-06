@@ -47,9 +47,21 @@ UPDATE_ALERT_PRICE_QUERY = """
     WHERE id = :id AND soft_delete = false;
 """
 
-DELETE_ALERT_PRICE_QUERY = """
+DELETE_ALERT_QUERY = """
     UPDATE alerts
     SET soft_delete = true
+    WHERE id = :id AND soft_delete = false;
+"""
+
+SLEEP_ALERT_QUERY = """
+    UPDATE alerts
+    SET active = false
+    WHERE id = :id AND soft_delete = false;
+"""
+
+UNSLEEP_ALERT_QUERY = """
+    UPDATE alerts
+    SET active = true
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -147,6 +159,28 @@ class AlertsRepository(BaseRepository):
 
         # update alert in database
         await self.db.fetch_one(
-            query=DELETE_ALERT_PRICE_QUERY, values={
+            query=DELETE_ALERT_QUERY, values={
+                "id": alert_id}
+        )
+
+    async def sleep_alert_by_id(self, *, alert_id: int) -> None:
+        """
+        Sleep an alert
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=SLEEP_ALERT_QUERY, values={
+                "id": alert_id}
+        )
+
+    async def unsleep_alert_by_id(self, *, alert_id: int) -> None:
+        """
+        Sleep an alert
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=UNSLEEP_ALERT_QUERY, values={
                 "id": alert_id}
         )

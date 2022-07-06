@@ -37,9 +37,10 @@ import { AxiosResponse } from "axios";
  * toggleModal: function from parent dictating whether modal should be opened or closed.
  */
 interface ModalProps {
-  toggleModal: any;
+  toggleModal: () => void;
   user: User;
   assets: Asset[];
+  updateAlerts: () => void;
 }
 
 const AlertModal: FC<ModalProps> = (props: ModalProps) => {
@@ -82,7 +83,8 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
               props.user.token,
               createAlertRequest
             );
-            const alert: Alert = res.data;
+            props.updateAlerts();
+            props.toggleModal();
           } catch (err: any) {
             if (err.response.status === 400) {
               setValidationError(err.response.data.detail);
