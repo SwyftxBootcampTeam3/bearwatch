@@ -1,5 +1,4 @@
-
-
+import re
 import json
 import time
 from pytest import param
@@ -54,3 +53,10 @@ def get_server_auth_token():
         return new_req.json()['access_token']
     print(req.json()['access_token'])
     return req.json()['access_token']
+
+
+def valid_phone_number(phone_string: str):
+    regex = r"^[0-9]{9,15}$"
+    if not re.search(regex, phone_string, re.I):
+        return False
+    return True

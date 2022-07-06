@@ -12,6 +12,10 @@ from app.db.repositories.base import BaseRepository
 
 # models
 from app.models.user import UserCreate, UserUpdate, User
+from app.models.token import AccessToken
+
+# Utils
+from app.services.utils import valid_phone_number
 
 CREATE_USER_QUERY = """
     INSERT INTO users (email,phone_number)
@@ -65,7 +69,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_phone_number(self, *, phone_number: int) -> User:
+    async def get_user_by_phone_number(self, *, phone_number: str) -> User:
         """
         Queries the database for the first matching user with this phone number.
         """
@@ -81,7 +85,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: int) -> User:
+    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: str) -> User:
         """
         Queries the database for the first matching user with this email & phone
         """
@@ -97,7 +101,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def check_user_already_exists(self, *, email: EmailStr, phone_number: int) -> int:
+    async def check_user_already_exists(self, *, email: EmailStr, phone_number: str) -> int:
         '''
         Queries the database to check the email or phone number provided is already in use
         '''
@@ -114,6 +118,12 @@ class UsersRepository(BaseRepository):
         """
         Creates a user.
         """
+
+        if not valid_phone_number(new_user.phone_number):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="That phone number is invalid!",
+            )
 
         # unique constraints exist on email & phome -> confirm both are not taken
         user_exists = await self.check_user_already_exists(email=new_user.email, phone_number=new_user.phone_number)

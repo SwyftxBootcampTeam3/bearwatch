@@ -69,7 +69,6 @@ class AuthService:
 
         # provide a user or receive nothing
         if not user or not isinstance(user, User):
-            print(user)
             return None
 
         # meta for payload

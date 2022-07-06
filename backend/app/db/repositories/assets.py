@@ -30,9 +30,9 @@ GET_ASSET_BY_CODE = """
 """
 
 CREATE_ASSET_QUERY = """
-    INSERT INTO assets (name,code,last_price)
-    VALUES (:name,:code,:last_price)
-    RETURNING id, name, code, last_price, created_at, updated_at;
+    INSERT INTO assets (name,code,price)
+    VALUES (:name,:code,:price)
+    RETURNING id, name, code, price, created_at, updated_at;
 """
 
 UPDATE_ASSET_PRICE_QUERY = """

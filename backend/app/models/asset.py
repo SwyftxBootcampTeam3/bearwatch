@@ -19,9 +19,7 @@ class AssetCreate(AssetBase):
     This is the model that we use when we wish to create a new asset.
     """
 
-    name: str
-    code: str
-    price: float
+    pass
 
 
 class Asset(IDModelMixin, DateTimeModelMixin, AssetBase):
