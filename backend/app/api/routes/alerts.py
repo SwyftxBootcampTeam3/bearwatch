@@ -22,12 +22,14 @@ from app.models.user import User
 router = APIRouter()
 
 
-# name the route and you can use it across testing and db access
 @router.get("/", response_model=List[Alert], name="alerts:get-user-alerts")
 async def get_user_alerts(
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> List[Alert]:
+    ''' 
+    Get a users alerts
+    '''
 
     user_alerts = await alerts_repo.get_alerts_by_user_id(current_user.id)
     return user_alerts
@@ -39,7 +41,11 @@ async def create_alert(
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
+    ''' 
+    Create an alert
+    '''
 
+    #Ensure the authenticated user is the one making the request
     if current_user.id != request.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -57,6 +63,10 @@ async def update_alert(
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
+    '''
+    Update an alerts price/type
+    '''
+
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
@@ -64,22 +74,26 @@ async def update_alert(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="That alert does not exist!",
         )
-
     if current_user.id != alert.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You can only update an alert for yourself!",
         )
 
+    # Update the alert and return the updated alert
     await alerts_repo.update_alert(alert_id=alert_id, updated_alert=request)
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
-@router.put("/sleep", name="alerts:update-alert")
+@router.put("/sleep", name="alerts:sleep-alert")
 async def sleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> None:
+    '''
+    Sleep an alert (Active = False)
+    '''
+
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
@@ -96,12 +110,16 @@ async def sleep_alert(
 
     await alerts_repo.sleep_alert_by_id(alert_id=alert_id)
 
-@router.put("/unsleep", name="alerts:update-alert")
+@router.put("/unsleep", name="alerts:unsleep-alert")
 async def unsleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> None:
+    '''
+    Unsleep an alert (Active = True)
+    '''
+
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
@@ -125,6 +143,10 @@ async def delete_alert(
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> None:
+    '''
+    Soft delete an alert
+    '''
+
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:

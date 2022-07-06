@@ -10,7 +10,7 @@ from app.models.asset import Asset
 
 class AlertBase(CoreModel):
     """
-    The base alert model. We don't include those things that are in the database we don't want exposed as any model that extends this will have and have access to its values.
+    The base alert model
     """
 
     asset_id: int
@@ -20,7 +20,7 @@ class AlertBase(CoreModel):
 
 class AlertCreate(AlertBase):
     """
-    This is the model that we use when we wish to create a new alert. We expect ...
+    The paramaters allowed when creating an alert
     """
 
     user_id: int
@@ -30,6 +30,7 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     """
     This extends our base model to include id, created, updated
     Functionally it represents one row of the 'alerts' table.
+    It also includes asset info, which is joined from the assets table at query time
     """
 
     user_id: int
@@ -43,7 +44,7 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
 
 class AlertUpdate(CoreModel):
     """
-    Alert can be updated
+    The paramaters allowed when updating an alert
     """
 
     price: float

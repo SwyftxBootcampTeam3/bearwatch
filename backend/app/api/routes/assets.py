@@ -21,12 +21,14 @@ from app.models.user import User
 router = APIRouter()
 
 
-# name the route and you can use it across testing and db access
 @router.get("/", response_model=List[Asset], name="assets:get-all-assets")
 async def get_all_assets(
     current_user: User = Depends(get_current_user),
     assets_repo: AssetsRepository = Depends(get_repository(AssetsRepository))
 ) -> List[Asset]:
+    '''
+    Get all assets in the db given an authenticated request
+    '''
 
     assets = await assets_repo.get_all_assets()
     return assets

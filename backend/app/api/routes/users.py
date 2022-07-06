@@ -20,13 +20,14 @@ from app.services.authentication import AuthService
 
 router = APIRouter()
 
-# name the route and you can use it across testing and db access
-
 
 @router.get("/me", response_model=User, name="users:get-user")
 async def get_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
+    '''
+    Fetch the user from a given JWT
+    '''
 
     return current_user
 
@@ -43,25 +44,18 @@ async def create_user(
     auth_service: AuthService = Depends(AuthService)
 ) -> AccessToken:
     """
-    Creates a new user and returns a public model including access token (JWT)
+    Creates a new user and returns their JWTs
     """
 
     # register user (send UserCreate to db, receive UserInDB)
     created_user = await user_repo.create_user(new_user=request)
 
-    # create JWT and attach to UserPublic model
-
+    # create JWT
     access_token = AccessToken(
         access_token=auth_service.create_access_token_for_user(
             user=created_user),
         token_type="bearer"
     )
-
-    # return a public model
-
-    # profile attachment done in repository
-
-    # return a public model
     return access_token
 
 
@@ -75,7 +69,7 @@ async def login_user_with_email(
 ) -> AccessToken:
     """
     Takes supplied email, passes this to repo to authenticate.
-    Then generates and returns an accesstoken for that user.
+    Then generates and returns an access token for that user.
     """
     user = await user_repo.authenticate_user(
         email=email
