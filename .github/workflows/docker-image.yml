@@ -12,8 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Login to Github Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: gchr.io
+        username: ${{ github.actor }}
+        passsword: ${{ secrets.ACTIONS_PAT }}
+        
     - name: Build the Docker image
-      run: docker build . --file ./backend/Dockerfile --tag bearwatch:$(date +%s)
+      run: |
+        docker build . --file ./backend/Dockerfile --tag gchr.io/stevoAbr/bearwatch:$(date +%s)
+        docker run gchr.io/stevoAbr/bearwatch:$(date +%s)
+        docker push gchr.io/stevoAbr/bearwatch:$(date +%s)
   
   build-frontend:
     runs-on: ubuntu-latest
