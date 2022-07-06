@@ -18,9 +18,9 @@ jobs:
         
     - name: Build the Docker image
       run: |
-        docker build . --file ./backend/Dockerfile --tag ghcr.io/stevoabr/bearwatch:$(date +%s)
-        docker run gchcr.io/stevoabr/bearwatch:$(date +%s)
-        docker push ghcr.io/stevoabr/bearwatch:$(date +%s)
+        docker build . --file ./backend/Dockerfile --tag ghcr.io/stevoabr/bearwatch:latest
+        docker run gchcr.io/stevoabr/bearwatch:latest
+        docker push ghcr.io/stevoabr/bearwatch:latest
   
   build-frontend:
     runs-on: ubuntu-latest
