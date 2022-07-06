@@ -1,6 +1,7 @@
 from logging import error
 import re
 import time
+from typing import List
 
 # models
 from backend.app.models.asset import Asset, AssetCreate
@@ -22,59 +23,45 @@ celery = Celery(__name__)
 celery.conf.broker_url = config("CELERY_BROKER_URL", cast=str)
 celery.conf.result_backend = config("CELERY_RESULT_BACKEND", cast=str)
 
-apiKey = "MLVMH30Y-QZcXoRpUArvBAK4NvMP5m5-UxmV3JMiQ4eTm"
-
-# Use localhost for local development
-route = "http://localhost:9191"
-
-@celery.task(name="create_task")
-def create_task(a,b,c):
-    time.sleep(a)
-    return b + c
 
 # CronJob 1 - Fetch all updated asset prices
 @celery.task(name="update_assets")
-def update_assets():
-    token = get_server_auth_token()
-    headers = {
-        'Authorization': 'Bearer ' + token
-    }
-
-    assets_repo = get_repository(AssetsRepository)
+async def update_assets():
+    assets_repo:AssetsRepository = get_repository(AssetsRepository)
 
     # Using markets basic table as Swyftx stores more coin prices than actual coins
-    req_swyftx = requests.get('https://api.swyftx.com.au/markets/info/basic/').json()
+    try:
+        new_assets = await requests.get('https://api.swyftx.com.au/markets/info/basic/').json()
+    except Exception as e:
+        # This is something we would log in a real application
+        print(e)
 
-    # Get prices in AUD
-    # req_prices = requests.get('https://api.swyftx.com.au/live-rates/1/')
-
-    req_server = requests.get(route + '/api/assets', headers=headers)
-
-    num_swyftx, num_server = len(req_swyftx.json()), len(req_server.json())
-
-    for i in range(num_server - 1):
-        coin_data = req_swyftx[i]
-
-        # calculate coin price by averaging buy and sell price
-        coin_price = (float(coin_data['buy']) + float(coin_data['sell']))/2
-
-        assets_repo.update_asset_price(code=coin_data['code'], price=coin_price)
-
-    # Add new assets if there are any
-    if (num_server < num_swyftx):
-        for i in range(num_server, num_swyftx):
-            # Get the name, code and id for the new coin
-            coin_data = req_swyftx[i]
-
-            # calculate coin price by averaging buy and sell price
-            coin_price = (float(coin_data['buy']) + float(coin_data['sell']))/2
-
-            new_asset = AssetCreate(name=coin_data['name'], code=coin_data['code'], price=coin_price)
-
-            # Add new asset to the AssetRepository
-            assets_repo.create_asset(new_asset)
+    try:
+        stored_assets:List[Asset] = await assets_repo.get_all_assets()
+    except Exception as e:
+        # This is something we would log in a real application
+        print(e)
     
+    #Check for new assets
+    if len(new_assets) != len(stored_assets):
+        stored_asset_ids:List[int] = list(map(stored_assets, lambda a: a.external_id))
+        for asset in new_asset:
+            #Check if the asset doesn't exists in our db
+            if asset['id'] not in stored_asset_ids:
+                #Add asset
+                price = (float(asset['buy']) + float(asset['sell']))/2
+                new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
+                try:
+                    await assets_repo.create_asset(new_asset)
+                    stored_assets.append(new_asset)
+                except Exception as e:
+                    print(e)            
 
+    #Update our asset prices
+    for asset in stored_assets:
+        new_asset = list(filter(new_assets, lambda a: a['id'] == asset.external_id))[0]
+        price = (float(new_asset['buy']) + float(new_asset['sell']))/2
+        await assets_repo.update_asset_price(id=asset.id, price=price)
 
 
 # CronJob 2 - Fetch all triggered alerts
