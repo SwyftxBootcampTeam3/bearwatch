@@ -17,25 +17,28 @@ from app.models.alert import Alert, AlertCreate, AlertUpdate
 CREATE_ALERT_QUERY = """
     INSERT INTO alerts (user_id,asset_id,price,alert_type)
     VALUES (:user_id,:asset_id,:price,:alert_type)
-    RETURNING id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at;
+    RETURNING id;
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
     FROM alerts
-    WHERE id = :id AND soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.id = :id AND alerts.soft_delete = false;
 """
 
 GET_ALERT_BY_USER_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
     FROM alerts
-    WHERE user_id = :user_id AND soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.user_id = :user_id AND alerts.soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,active,triggered,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
     FROM alerts
-    WHERE soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.soft_delete = false;
 """
 
 UPDATE_ALERT_PRICE_QUERY = """
@@ -107,10 +110,10 @@ class AlertsRepository(BaseRepository):
         """
         Creates an alert
         """
-
+        print(new_alert)
         # create alert in database
         try:
-            created_alert = await self.db.fetch_one(
+            created_alert_id = await self.db.fetch_one(
                 query=CREATE_ALERT_QUERY, values={"user_id": new_alert.user_id, "asset_id": new_alert.asset_id,
                                                   "price": new_alert.price, "alert_type": new_alert.alert_type}
             )
@@ -120,7 +123,10 @@ class AlertsRepository(BaseRepository):
                 detail="That asset does not exist!",
             )
 
-        return created_alert
+        if created_alert_id:
+            asset_id = int(created_alert_id['id'])
+
+        return await self.get_alert_by_id(asset_id)
 
     async def update_alert(self, alert_id: int, updated_alert: AlertUpdate) -> None:
         """

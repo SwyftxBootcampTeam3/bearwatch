@@ -33,10 +33,12 @@ interface CardProps {
           <Grid container rowGap={3} columns={12}>
           <Grid item xs={6}><Typography>{props.coinCode}</Typography></Grid>
           <Grid item xs={3}>
-              <Button variant="contained" disabled = {props.alertType === "Up"}><SvgIcon component={ArrowDownward}/></Button>
-          </Grid> 
-          <Grid item xs={3}>
-              <Button variant="contained" disabled = {props.alertType === "Down"}><SvgIcon component={ArrowUpward}/></Button>
+              {!props.alertType &&
+                <Button variant="contained"><SvgIcon component={ArrowDownward}/></Button>
+              }
+              {props.alertType &&
+                 <Button variant="contained"><SvgIcon component={ArrowUpward}/></Button>
+              }
           </Grid>
           <Grid item xs={12}>
             <TextField label = "Alert Price" value = {props.currentPrice} InputProps={{
