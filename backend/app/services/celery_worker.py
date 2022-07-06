@@ -6,9 +6,6 @@ from app.models.asset import Asset, AssetCreate
 # repositories
 from app.db.repositories.assets import AssetsRepository
 
-from app.api.dependencies.database import get_repository
-
-from app.services.utils import get_server_auth_token
 
 from app.api import server
 
