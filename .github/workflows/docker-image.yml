@@ -14,7 +14,7 @@ jobs:
       with:
         registry: gchr.io
         username: ${{ github.actor }}
-        passsword: ${{ secrets.ACTIONS_PAT }}
+        password: ${{ secrets.ACTIONS_PAT }}
         
     - name: Build the Docker image
       run: |
