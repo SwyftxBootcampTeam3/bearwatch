@@ -31,7 +31,7 @@ JWT_TOKEN_PREFIX = config("JWT_TOKEN_PREFIX", cast=str, default="Bearer")
 POSTGRES_USER = config("POSTGRES_USER", cast=str)
 POSTGRES_PASSWORD = config("POSTGRES_PASSWORD", cast=Secret)
 POSTGRES_SERVER = config("POSTGRES_SERVER", cast=str, default="db")
-POSTGRES_PORT = config("POSTGRES_PORT", cast=str, default="5432")
+POSTGRES_PORT = config("POSTGRES_PORT", cast=str, default="5433")
 POSTGRES_DB = config("POSTGRES_DB", cast=str)
 DATABASE_URL = config(
     "DATABASE_URL",
@@ -44,3 +44,6 @@ DB_MAX_CONNECTIONS = config("DB_MAX_CONNECTIONS", cast=int, default=10)
 # celery
 CELERY_BROKER_URL = config("POSTGRES_USER", cast=str)
 CELERY_RESULT_BACKEND = config("POSTGRES_USER", cast=str)
+#TWILIO
+ACCOUNT_SID = config("ACCOUNT_SID", cast=str)
+AUTH_TOKEN = config("ACCOUNT_SID", cast=str)
