@@ -21,11 +21,20 @@ function App() {
     }
   }, [token]);
 
+  const splashLogo = {
+    position: "absolute" as "absolute",
+    bottom: "0%",
+    right: "0%",
+    width: "30%",
+    zIndex: -1,
+  };
+
   return (
     <div className="App">
       <Header title="BearWatch" subtitle="A subtitle" user="TestUser" />
       {user === null && <LoginPage handleAuth={setToken} />}
       {user !== null && <AlertsPage user={user} />}
+      <img src="/bearwatch-2.png" style={splashLogo} />
     </div>
   );
 }
