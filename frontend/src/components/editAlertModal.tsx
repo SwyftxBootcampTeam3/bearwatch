@@ -26,7 +26,7 @@ import { Add } from "@mui/icons-material";
 import { send } from "process";
 import { Alert, Asset, User } from "../types/models";
 import { isNil } from "lodash";
-import { CreateAlertRequest } from "../types/requests";
+import { CreateAlertRequest, UpdateAlertRequest } from "../types/requests";
 import AlertService from "../services/alert.service";
 import { AxiosResponse } from "axios";
 
@@ -37,8 +37,10 @@ import { AxiosResponse } from "axios";
  * toggleModal: function from parent dictating whether modal should be opened or closed.
  */
 interface ModalProps {
-  toggleModal: any;
+  toggleModal: () => void;
   user: User;
+  alert: Alert;
+  updateAlerts: () => void;
 }
 
 const AlertModal: FC<ModalProps> = (props: ModalProps) => {
@@ -55,7 +57,6 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
   };
 
   const [alertType, setAlertType] = React.useState<string>("decrease");
-  const [asset, setAsset] = React.useState<Asset | null>(null);
   const [price, setPrice] = React.useState<string | null>(null);
 
   const [validationError, setValidationError] = React.useState<string | null>(
@@ -63,40 +64,49 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
   );
 
   /** Sends alert form to database to create the alert */
-  const createAlert = async () => {
+  const updateAlert = async () => {
     //Validate Entries
-    if (!isNil(asset)) {
-      const validAsset: Asset = asset;
-      if (!isNil(price)) {
-        const validPrice: number = Number(price);
-        if (!isNil(validPrice) && !isNaN(validPrice) && !(validPrice <= 0)) {
-          try {
-            const createAlertRequest: CreateAlertRequest = {
-              asset_id: validAsset.id,
-              price: validPrice,
-              alert_type: alertType === "increase" ? true : false,
-              user_id: props.user.id,
-            };
-            const res: AxiosResponse = await AlertService.create_alert(
-              props.user.token,
-              createAlertRequest
-            );
-            const alert: Alert = res.data;
-          } catch (err: any) {
-            if (err.response.status === 400) {
-              setValidationError(err.response.data.detail);
-            } else {
-              setValidationError(
-                "An unknown error has occured. Please try again later!"
-              );
-            }
+    if (!isNil(price)) {
+      const validPrice: number = Number(price);
+      if (!isNil(validPrice) && !isNaN(validPrice) && !(validPrice <= 0)) {
+        //Check the alert is valid - idiotproofing
+        const validAlertType = alertType === "increase" ? true : false;
+        if (validAlertType) {
+          if (validPrice <= props.alert.asset_price) {
+            setValidationError("Invalid Alert - This would trigger instantly!");
+            return;
           }
         } else {
-          setValidationError("Invalid price!");
+          if (validPrice >= props.alert.asset_price) {
+            setValidationError("Invalid Alert - This would trigger instantly!");
+            return;
+          }
         }
+
+        try {
+          const updateAlertRequest: UpdateAlertRequest = {
+            price: validPrice,
+            alert_type: validAlertType,
+          };
+          await AlertService.update_alert(
+            props.user.token,
+            props.alert.id,
+            updateAlertRequest
+          );
+          props.updateAlerts();
+          props.toggleModal();
+        } catch (err: any) {
+          if (err.response.status === 400) {
+            setValidationError(err.response.data.detail);
+          } else {
+            setValidationError(
+              "An unknown error has occured. Please try again later!"
+            );
+          }
+        }
+      } else {
+        setValidationError("Invalid price!");
       }
-    } else {
-      setValidationError("You must select an asset!");
     }
   };
 
@@ -120,19 +130,28 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       >
         <Paper sx={style}>
           <Typography variant="h6" component="h2">
-            Edit Existing Alert
+            Edit Alert
           </Typography>
           <FormGroup>
             <Grid container rowGap={3} columns={10}>
               <Grid item xs={5}>
                 <InputLabel>Coin</InputLabel>
+                <Autocomplete
+                  disablePortal
+                  value={props.alert.asset_code}
+                  disabled={true}
+                  renderInput={(params) => (
+                    <TextField {...params} placeholder="Select coin..." />
+                  )}
+                  options={[]}
+                />
               </Grid>
               <Grid item xs={2}></Grid>
               <Grid item xs={3}>
                 <InputLabel>Current Price</InputLabel>
                 <OutlinedInput
                   label="Current Price"
-                  value={asset?.price}
+                  value={props.alert.asset_price}
                   disabled
                 />
               </Grid>
@@ -167,14 +186,15 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
                   startAdornment={
                     <InputAdornment position="start">AUD $</InputAdornment>
                   }
+                  defaultValue={props.alert.price}
                   onChange={(evt) => {
                     setPrice(evt.target.value);
                   }}
                 />
               </Grid>
               <Grid item xs={10}>
-                <Button variant="contained" onClick={createAlert}>
-                  Create alert
+                <Button variant="contained" onClick={updateAlert}>
+                  Update alert
                 </Button>
               </Grid>
               {validationError !== null && (
@@ -193,7 +213,6 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       </Modal>
     </>
   );
-  // TODO: Make Button form thing otherwise use radio Buttons
 };
 
 export default AlertModal;

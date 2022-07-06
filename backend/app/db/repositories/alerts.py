@@ -21,21 +21,21 @@ CREATE_ALERT_QUERY = """
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
     INNER JOIN assets ON assets.id=alerts.asset_id
     WHERE alerts.id = :id AND alerts.soft_delete = false;
 """
 
 GET_ALERT_BY_USER_ID_QUERY = """
-    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
     INNER JOIN assets ON assets.id=alerts.asset_id
     WHERE alerts.user_id = :user_id AND alerts.soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name, assets.code
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
     INNER JOIN assets ON assets.id=alerts.asset_id
     WHERE alerts.soft_delete = false;
@@ -43,7 +43,7 @@ GET_ALL_ALERTS_QUERY = """
 
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
-    SET price = :price, asset_id = :asset_id, alert_type = :alert_type
+    SET price = :price, alert_type = :alert_type
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -122,7 +122,6 @@ class AlertsRepository(BaseRepository):
         """
         Creates an alert
         """
-        print(new_alert)
         # create alert in database
         try:
             created_alert_id = await self.db.fetch_one(
@@ -149,7 +148,7 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=UPDATE_ALERT_PRICE_QUERY, values={
-                "price": updated_alert.price, "alert_type": updated_alert.alert_type, "asset_id": updated_alert.asset_id, "id": alert_id}
+                "price": updated_alert.price, "alert_type": updated_alert.alert_type, "id": alert_id}
         )
 
     async def delete_alert_by_id(self, *, alert_id: int) -> None:

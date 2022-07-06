@@ -228,7 +228,6 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       </Modal>
     </>
   );
-  // TODO: Make Button form thing otherwise use radio Buttons
 };
 
 export default AlertModal;

@@ -36,13 +36,15 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     soft_delete: bool
     active: bool
     triggered: bool
-    name: str
-    code: str
+    asset_name: str
+    asset_code: str
+    asset_price: int
 
 
-class AlertUpdate(AlertBase):
+class AlertUpdate(CoreModel):
     """
     Alert can be updated
     """
 
-    pass
+    price: float
+    alert_type: bool

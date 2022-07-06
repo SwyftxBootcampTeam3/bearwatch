@@ -1,5 +1,9 @@
 import { Token, User, Alert } from "../types/models";
-import { CreateAlertRequest, RegisterRequest } from "../types/requests";
+import {
+  CreateAlertRequest,
+  RegisterRequest,
+  UpdateAlertRequest,
+} from "../types/requests";
 import { URL } from "../constants/api";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
@@ -21,6 +25,23 @@ export default class AlertService {
     const config = {
       method: "post",
       url: `${URL.APP}/${URL.ALERTS}/`,
+      headers: { Authorization: `${token.token_type} ${token.access_token}` },
+      data: {
+        request,
+      },
+    };
+    const response = await axios(config);
+    return response.data;
+  }
+
+  static async update_alert(
+    token: Token,
+    alert_id: number,
+    request: UpdateAlertRequest
+  ): Promise<Alert> {
+    const config = {
+      method: "put",
+      url: `${URL.APP}/${URL.ALERTS}/?alert_id=${alert_id}`,
       headers: { Authorization: `${token.token_type} ${token.access_token}` },
       data: {
         request,

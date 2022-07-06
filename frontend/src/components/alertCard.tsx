@@ -15,16 +15,13 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import NotificationsPausedIcon from "@mui/icons-material/NotificationsPaused";
 import React, { FC } from "react";
 import AlertModal from "./editAlertModal";
-import { User } from "../types/models";
+import { Alert, Asset, User } from "../types/models";
 import AlertService from "../services/alert.service";
 import { AxiosResponse } from "axios";
 
 interface CardProps {
-  alertId: number;
-  coinCode: string;
+  alert: Alert;
   alertStatus: string;
-  alertType: string;
-  currentPrice: number;
   user: User;
   updateAlerts: () => void;
 }
@@ -34,15 +31,14 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
 
   const toggleModal = () => {
     setAddNewAlert(!addNewAlert);
-    console.log("toggleModal");
   };
 
   const handleSleep = async () => {
     try {
       if (props.alertStatus === "Sleeping") {
-        await AlertService.unsleep_alert(props.alertId, props.user.token);
+        await AlertService.unsleep_alert(props.alert.id, props.user.token);
       } else {
-        await AlertService.sleep_alert(props.alertId, props.user.token);
+        await AlertService.sleep_alert(props.alert.id, props.user.token);
       }
       props.updateAlerts();
     } catch (err: any) {
@@ -52,7 +48,7 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
 
   const handleDelete = async () => {
     try {
-      await AlertService.delete_alert(props.alertId, props.user.token);
+      await AlertService.delete_alert(props.alert.id, props.user.token);
       props.updateAlerts();
     } catch (err: any) {
       console.log(err);
@@ -70,15 +66,15 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
       >
         <Grid container rowGap={3} columns={12}>
           <Grid item xs={6}>
-            <Typography align="center">{props.coinCode}</Typography>
+            <Typography align="center">{props.alert.asset_code}</Typography>
           </Grid>
           <Grid item xs={5}>
-            {!props.alertType && (
+            {!props.alert.alert_type && (
               <Button variant="contained">
                 <SvgIcon component={ArrowDownward} />
               </Button>
             )}
-            {props.alertType && (
+            {props.alert.alert_type && (
               <Button variant="contained">
                 <SvgIcon component={ArrowUpward} />
               </Button>
@@ -87,7 +83,7 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
           <Grid item xs={12}>
             <TextField
               label="Alert Price"
-              value={props.currentPrice}
+              value={props.alert.price}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">$</InputAdornment>
@@ -106,7 +102,12 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
               <SvgIcon component={EditIcon} />
             </Button>
             {addNewAlert && (
-              <AlertModal user={props.user} toggleModal={toggleModal} />
+              <AlertModal
+                updateAlerts={props.updateAlerts}
+                alert={props.alert}
+                user={props.user}
+                toggleModal={toggleModal}
+              />
             )}
           </Grid>
           <Grid item xs={4}>

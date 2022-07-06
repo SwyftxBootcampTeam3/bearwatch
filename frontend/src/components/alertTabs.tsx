@@ -76,12 +76,9 @@ const AlertGrid: FC<AlertGridProps> = (props: AlertGridProps) => {
           {Array.from(props.alerts_triggered).map((_, index) => (
             <Grid item xs={1}>
               <AlertCard
+                alert={props.alerts_triggered[index]}
                 user={props.user}
-                alertId={props.alerts_triggered[index].id}
-                coinCode={props.alerts_triggered[index].code}
                 alertStatus="Triggered"
-                alertType={props.alerts_triggered[index].alert_type}
-                currentPrice={props.alerts_triggered[index].price}
                 updateAlerts={props.updateAlerts}
               />
             </Grid>
@@ -89,12 +86,9 @@ const AlertGrid: FC<AlertGridProps> = (props: AlertGridProps) => {
           {Array.from(props.alerts_watching).map((_, index) => (
             <Grid item xs={1}>
               <AlertCard
+                alert={props.alerts_watching[index]}
                 user={props.user}
-                alertId={props.alerts_watching[index].id}
-                coinCode={props.alerts_watching[index].code}
                 alertStatus="Watching"
-                alertType={props.alerts_watching[index].alert_type}
-                currentPrice={props.alerts_watching[index].price}
                 updateAlerts={props.updateAlerts}
               />
             </Grid>
@@ -106,12 +100,9 @@ const AlertGrid: FC<AlertGridProps> = (props: AlertGridProps) => {
           {Array.from(props.alerts_sleeping).map((_, index) => (
             <Grid item xs={1}>
               <AlertCard
+                alert={props.alerts_sleeping[index]}
                 user={props.user}
-                alertId={props.alerts_sleeping[index].id}
-                coinCode={props.alerts_sleeping[index].code}
                 alertStatus="Sleeping"
-                alertType={props.alerts_sleeping[index].alert_type}
-                currentPrice={props.alerts_sleeping[index].price}
                 updateAlerts={props.updateAlerts}
               />
             </Grid>

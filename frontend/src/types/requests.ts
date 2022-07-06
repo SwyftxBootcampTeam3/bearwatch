@@ -1,11 +1,16 @@
 export interface RegisterRequest {
-    email: string;
-    phone_number: string;
+  email: string;
+  phone_number: string;
 }
 
 export interface CreateAlertRequest {
-    asset_id: number;
-    price: number;
-    alert_type: boolean;
-    user_id: number;
+  asset_id: number;
+  price: number;
+  alert_type: boolean;
+  user_id: number;
+}
+
+export interface UpdateAlertRequest {
+  price: number;
+  alert_type: boolean;
 }

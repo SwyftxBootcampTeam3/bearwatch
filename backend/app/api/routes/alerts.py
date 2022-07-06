@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm  # JWT
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import null  # JWT
 
 
 # dependencies
@@ -52,7 +53,7 @@ async def create_alert(
 @router.put("/", name="alerts:update-alert")
 async def update_alert(
     alert_id: int,
-    updated_alert: AlertUpdate = Body(..., embed=True),
+    request: AlertUpdate = Body(..., embed=True),
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
 ) -> Alert:
@@ -70,15 +71,15 @@ async def update_alert(
             detail="You can only update an alert for yourself!",
         )
 
-    await alerts_repo.update_alert(alert_id=alert_id, updated_alert=updated_alert)
+    await alerts_repo.update_alert(alert_id=alert_id, updated_alert=request)
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
 @router.put("/sleep", name="alerts:update-alert")
-async def update_alert(
+async def sleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
-) -> Alert:
+) -> None:
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
@@ -96,11 +97,11 @@ async def update_alert(
     await alerts_repo.sleep_alert_by_id(alert_id=alert_id)
 
 @router.put("/unsleep", name="alerts:update-alert")
-async def update_alert(
+async def unsleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
     alerts_repo: AlertsRepository = Depends(get_repository(AlertsRepository))
-) -> Alert:
+) -> None:
     # Get the alert to check the user owns the alert
     alert = await alerts_repo.get_alert_by_id(alert_id)
     if not alert:
