@@ -12,32 +12,32 @@ from app.db.repositories.base import BaseRepository
 from app.models.asset import Asset, AssetCreate
 
 GET_ALL_ASSETS_QUERY = """
-    SELECT id, name, code, price, created_at, updated_at
+    SELECT id, name, code, price, external_id, created_at, updated_at
     FROM assets;
 """
 
 GET_ASSET_BY_ID = """
-    SELECT id, name, code, price, created_at, updated_at
+    SELECT id, name, code, price, external_id, created_at, updated_at
     FROM assets
     WHERE id = :id;
 """
 
-GET_ASSET_BY_CODE = """
-    SELECT id, name, code, price, created_at, updated_at
+GET_ASSET_BY_EXTERNAL_ID = """
+    SELECT id, name, code, price, external_id, created_at, updated_at
     FROM assets
-    WHERE code = :code;
+    WHERE external_id = :external_id;
 """
 
 CREATE_ASSET_QUERY = """
-    INSERT INTO assets (name,code,price)
-    VALUES (:name,:code,:price)
-    RETURNING id, name, code, price, created_at, updated_at;
+    INSERT INTO assets (name,code,price,external_id)
+    VALUES (:name,:code,:price,:external_id)
+    RETURNING id, name, code, price, external_id, created_at, updated_at;
 """
 
 UPDATE_ASSET_PRICE_QUERY = """
     UPDATE assets
-    SET last_price = :last_price
-    WHERE code = :code;
+    SET price = :price
+    WHERE id = :id;
 """
 
 
@@ -81,14 +81,14 @@ class AssetsRepository(BaseRepository):
 
         return asset
 
-    async def get_asset_by_code(self, *, code: str) -> Asset:
+    async def get_asset_by_external_id(self, *, external_id: int) -> Asset:
         """
-        Queries the database for the first matching asset with this code (this SHOULD be a unique field)
+        Queries the database for the first matching asset with this external id (this SHOULD be a unique field)
         """
 
         # pass values to query
         asset = await self.db.fetch_one(
-            query=GET_ASSET_BY_CODE, values={"code": code}
+            query=GET_ASSET_BY_EXTERNAL_ID, values={"external_id": external_id}
         )
 
         if asset:
@@ -101,8 +101,8 @@ class AssetsRepository(BaseRepository):
         Creates a asset.
         """
 
-        # unique constraints exist on code, ensure no asset exists with this code
-        existing_asset = await self.get_asset_by_code(code=new_asset.code)
+        # unique constraints exist on external_id
+        existing_asset = await self.get_asset_by_external_id(external_id=new_asset.external_id)
 
         if existing_asset:
             raise HTTPException(
@@ -118,26 +118,16 @@ class AssetsRepository(BaseRepository):
 
         return created_asset
 
-    async def update_asset_price(self, *, code: str, price: float) -> Asset:
+    async def update_asset_price(self, *, id: int, price: float) -> Asset:
         """
-        Updates the last price of an asset of a certain code
+        Updates the last price of an asset
         """
 
-        # Check that the asset exists
-        existing_asset = await self.get_asset_by_code(code=code)
-
-        if not existing_asset:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="That asset does not exist.",
-            )
-        
         # Update the asset price
         updated_asset = await self.db.fetch_one(
             query=UPDATE_ASSET_PRICE_QUERY, values={
-                "last_price": price, "code": code}
+                "id": id, "price": price}
         
         )
-
         return updated_asset
 

@@ -12,6 +12,7 @@ class AssetBase(CoreModel):
     name: str
     code: str
     price: float
+    external_id: int
 
 
 class AssetCreate(AssetBase):
@@ -20,7 +21,6 @@ class AssetCreate(AssetBase):
     """
 
     pass
-
 
 class Asset(IDModelMixin, DateTimeModelMixin, AssetBase):
     """
