@@ -1,3 +1,4 @@
+from turtle import update
 from typing import List, Optional
 from databases import Database
 
@@ -32,6 +33,12 @@ CREATE_ASSET_QUERY = """
     INSERT INTO assets (name,code,last_price)
     VALUES (:name,:code,:last_price)
     RETURNING id, name, code, last_price, created_at, updated_at;
+"""
+
+UPDATE_ASSET_PRICE_QUERY = """
+    UPDATE assets
+    SET last_price = :last_price
+    WHERE code = :code;
 """
 
 
@@ -111,3 +118,27 @@ class AssetsRepository(BaseRepository):
         )
 
         return created_asset
+
+    async def update_asset_price(self, *, code: str, price: float) -> Asset:
+        """
+        Updates the last price of an asset of a certain code
+        """
+
+        # Check that the asset exists
+        existing_asset = await self.get_asset_by_code(code=code)
+
+        if not existing_asset:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="That asset does not exist.",
+            )
+        
+        # Update the asset price
+        updated_asset = await self.db.fetch_one(
+            query=UPDATE_ASSET_PRICE_QUERY, values={
+                "last_price": price, "code": code}
+        
+        )
+
+        return updated_asset
+

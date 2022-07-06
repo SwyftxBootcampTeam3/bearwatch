@@ -11,7 +11,7 @@ class AssetBase(CoreModel):
 
     name: str
     code: str
-    price: int
+    price: float
 
 
 class AssetCreate(AssetBase):
@@ -21,7 +21,7 @@ class AssetCreate(AssetBase):
 
     name: str
     code: str
-    price: int
+    price: float
 
 
 class Asset(IDModelMixin, DateTimeModelMixin, AssetBase):

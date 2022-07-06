@@ -1,8 +1,17 @@
 from logging import error
 import re
 import time
+
+# models
+from backend.app.models.asset import Asset, AssetCreate
+
+# repositories
+from backend.app.db.repositories.assets import AssetsRepository
+
+from backend.app.api.dependencies.database import get_repository
+
 from backend.app.services.utils import get_server_auth_token
-import utils
+
 import requests
 from celery import Celery
 from starlette.config import Config
@@ -23,21 +32,49 @@ def create_task(a,b,c):
     time.sleep(a)
     return b + c
 
-@celery.task(name="get_asset_prices")
-def get_asset_prices():
-    # Get rates in terms of AUD
-    req_swyftx = requests.get('https://api.swyftx.com.au/live-rates/1/')
-
 # CronJob 1 - Fetch all updated asset prices
-@celery.task(name="fetch-updated-assets")
-def fetch_updated_assets():
-    # Fetch from swftx api
-    # Iterate over all json objects and for each
-    # insert_into_db
+@celery.task(name="update_assets")
+def update_assets():
+    token = get_server_auth_token()
+    headers = {
+        'Authorization': 'Bearer ' + token
+    }
 
+    assets_repo = get_repository(AssetsRepository)
 
-def insert_into_db(name, code, last_price):
-    # Write query to insert new prices into assets
+    # Using markets basic table as Swyftx stores more coin prices than actual coins
+    req_swyftx = requests.get('https://api.swyftx.com.au/markets/info/basic/').json()
+
+    # Get prices in AUD
+    # req_prices = requests.get('https://api.swyftx.com.au/live-rates/1/')
+
+    req_server = requests.get(route + '/api/assets', headers=headers)
+
+    num_swyftx, num_server = len(req_swyftx.json()), len(req_server.json())
+
+    for i in range(num_server - 1):
+        coin_data = req_swyftx[i]
+
+        # calculate coin price by averaging buy and sell price
+        coin_price = (float(coin_data['buy']) + float(coin_data['sell']))/2
+
+        assets_repo.update_asset_price(code=coin_data['code'], price=coin_price)
+
+    # Add new assets if there are any
+    if (num_server < num_swyftx):
+        for i in range(num_server, num_swyftx):
+            # Get the name, code and id for the new coin
+            coin_data = req_swyftx[i]
+
+            # calculate coin price by averaging buy and sell price
+            coin_price = (float(coin_data['buy']) + float(coin_data['sell']))/2
+
+            new_asset = AssetCreate(name=coin_data['name'], code=coin_data['code'], price=coin_price)
+
+            # Add new asset to the AssetRepository
+            assets_repo.create_asset(new_asset)
+    
+
 
 
 # CronJob 2 - Fetch all triggered alerts
@@ -45,3 +82,4 @@ def insert_into_db(name, code, last_price):
 def get_triggered_alerts():
     # Fetch from DB (write query)
     # Iterate over and send alerts using lanas stuff
+    pass

@@ -3,9 +3,20 @@
 import json
 import time
 from pytest import param
-
+from typing import Optional
+from databases import Database
 import requests
 from sqlalchemy import JSON
+from backend.app.api.dependencies import database
+from backend.app.api.dependencies.database import get_repository
+
+from backend.app.db.repositories.users import UsersRepository
+from backend.app.models.user import UserCreate
+from backend.app.models.asset import AssetCreate
+from backend.app.db.repositories.assets import AssetsRepository
+#from app.api.dependencies.database import get_repository
+#from app.db.repositories.assets import AssetsRepository
+
 
 # Rachel's Swyftx API key (read-only)
 apiKey = "MLVMH30Y-QZcXoRpUArvBAK4NvMP5m5-UxmV3JMiQ4eTm"
@@ -43,15 +54,3 @@ def get_server_auth_token():
         return new_req.json()['access_token']
     print(req.json()['access_token'])
     return req.json()['access_token']
-
-def check_new_asset():
-    token = get_server_auth_token()
-    headers = {
-        'Authorization': 'Bearer ' + token
-    }
-    req_swyftx = requests.get('https://api.swyftx.com.au/live-rates/1/')
-    req_server = requests.get(route + '/api/assets', headers=headers)
-    print(len(req_server.json()))
-    print(len(req_swyftx.json()))
-
-check_new_asset()
