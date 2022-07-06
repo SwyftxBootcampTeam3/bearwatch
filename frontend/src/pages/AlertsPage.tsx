@@ -1,9 +1,8 @@
-import { Typography, Box, Button, SvgIcon, Grid } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Typography, Box, Button, Grid } from "@mui/material";
 import React, { FC, useEffect, useState } from "react";
 import AlertGrid from "../components/alertTabs";
 import AlertModal from "../components/createAlertModal";
-import { Alert, Asset, Token, User } from "../types/models";
+import { Alert, Asset, User } from "../types/models";
 import AlertService from "../services/alert.service";
 import AssetService from "../services/asset.service";
 
@@ -44,7 +43,7 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
   useEffect(() => {
     fetchAlerts();
     fetchAssets();
-  }, []);
+  });
 
   const [addNewAlert, setAddNewAlert] = React.useState(false);
 

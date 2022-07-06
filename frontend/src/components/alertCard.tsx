@@ -15,9 +15,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import NotificationsPausedIcon from "@mui/icons-material/NotificationsPaused";
 import React, { FC } from "react";
 import AlertModal from "./editAlertModal";
-import { Alert, Asset, User } from "../types/models";
+import { Alert, User } from "../types/models";
 import AlertService from "../services/alert.service";
-import { AxiosResponse } from "axios";
 
 interface CardProps {
   alert: Alert;

@@ -1,34 +1,24 @@
-import React, { FC, useEffect } from "react";
+import React, { FC } from "react";
 import {
-  AppBar,
-  Container,
-  Toolbar,
   Typography,
   Modal,
-  Box,
   Button,
   SvgIcon,
   Paper,
   FormGroup,
   Grid,
   TextField,
-  Input,
   OutlinedInput,
   InputAdornment,
   InputLabel,
   Autocomplete,
-  getAlertTitleUtilityClass,
-  Hidden,
   Alert as AlertToast,
 } from "@mui/material";
-import { ArrowUpward, ArrowDownward, PropaneSharp } from "@mui/icons-material";
-import { Add } from "@mui/icons-material";
-import { send } from "process";
-import { Alert, Asset, User } from "../types/models";
+import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import { Asset, User } from "../types/models";
 import { isNil } from "lodash";
 import { CreateAlertRequest } from "../types/requests";
 import AlertService from "../services/alert.service";
-import { AxiosResponse } from "axios";
 
 /**
  * ModalProps:
