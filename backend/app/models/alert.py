@@ -1,3 +1,4 @@
+import string
 from typing import Optional
 from pydantic import EmailStr, constr
 from app.models.core import IDModelMixin, DateTimeModelMixin, CoreModel
@@ -13,7 +14,7 @@ class AlertBase(CoreModel):
     """
 
     asset_id: int
-    price: int
+    price: float
     alert_type: bool
 
 
@@ -27,17 +28,23 @@ class AlertCreate(AlertBase):
 
 class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     """
-    This extends our base model to include id, created, updated and salt.
-    Functionally it represents one row of the 'users' table.
+    This extends our base model to include id, created, updated
+    Functionally it represents one row of the 'alerts' table.
     """
 
     user_id: int
     soft_delete: bool
+    active: bool
+    triggered: bool
+    asset_name: str
+    asset_code: str
+    asset_price: int
 
 
-class AlertUpdate(AlertBase):
+class AlertUpdate(CoreModel):
     """
     Alert can be updated
     """
 
-    pass
+    price: float
+    alert_type: bool

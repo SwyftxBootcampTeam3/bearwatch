@@ -17,36 +17,51 @@ from app.models.alert import Alert, AlertCreate, AlertUpdate
 CREATE_ALERT_QUERY = """
     INSERT INTO alerts (user_id,asset_id,price,alert_type)
     VALUES (:user_id,:asset_id,:price,:alert_type)
-    RETURNING id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at;
+    RETURNING id;
 """
 
 GET_ALERT_BY_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
-    WHERE id = :id AND soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.id = :id AND alerts.soft_delete = false;
 """
 
 GET_ALERT_BY_USER_ID_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
-    WHERE user_id = :user_id AND soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.user_id = :user_id AND alerts.soft_delete = false;
 """
 
 GET_ALL_ALERTS_QUERY = """
-    SELECT id,user_id,asset_id,price,alert_type,soft_delete, created_at, updated_at
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
     FROM alerts
-    WHERE soft_delete = false;
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.soft_delete = false;
 """
 
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
-    SET price = :price, asset_id = :asset_id, alert_type = :alert_type
+    SET price = :price, alert_type = :alert_type
     WHERE id = :id AND soft_delete = false;
 """
 
-DELETE_ALERT_PRICE_QUERY = """
+DELETE_ALERT_QUERY = """
     UPDATE alerts
     SET soft_delete = true
+    WHERE id = :id AND soft_delete = false;
+"""
+
+SLEEP_ALERT_QUERY = """
+    UPDATE alerts
+    SET active = false
+    WHERE id = :id AND soft_delete = false;
+"""
+
+UNSLEEP_ALERT_QUERY = """
+    UPDATE alerts
+    SET active = true
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -107,10 +122,9 @@ class AlertsRepository(BaseRepository):
         """
         Creates an alert
         """
-
         # create alert in database
         try:
-            created_alert = await self.db.fetch_one(
+            created_alert_id = await self.db.fetch_one(
                 query=CREATE_ALERT_QUERY, values={"user_id": new_alert.user_id, "asset_id": new_alert.asset_id,
                                                   "price": new_alert.price, "alert_type": new_alert.alert_type}
             )
@@ -120,7 +134,10 @@ class AlertsRepository(BaseRepository):
                 detail="That asset does not exist!",
             )
 
-        return created_alert
+        if created_alert_id:
+            asset_id = int(created_alert_id['id'])
+
+        return await self.get_alert_by_id(asset_id)
 
     async def update_alert(self, alert_id: int, updated_alert: AlertUpdate) -> None:
         """
@@ -131,7 +148,7 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=UPDATE_ALERT_PRICE_QUERY, values={
-                "price": updated_alert.price, "alert_type": updated_alert.alert_type, "asset_id": updated_alert.asset_id, "id": alert_id}
+                "price": updated_alert.price, "alert_type": updated_alert.alert_type, "id": alert_id}
         )
 
     async def delete_alert_by_id(self, *, alert_id: int) -> None:
@@ -141,6 +158,28 @@ class AlertsRepository(BaseRepository):
 
         # update alert in database
         await self.db.fetch_one(
-            query=DELETE_ALERT_PRICE_QUERY, values={
+            query=DELETE_ALERT_QUERY, values={
+                "id": alert_id}
+        )
+
+    async def sleep_alert_by_id(self, *, alert_id: int) -> None:
+        """
+        Sleep an alert
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=SLEEP_ALERT_QUERY, values={
+                "id": alert_id}
+        )
+
+    async def unsleep_alert_by_id(self, *, alert_id: int) -> None:
+        """
+        Sleep an alert
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=UNSLEEP_ALERT_QUERY, values={
                 "id": alert_id}
         )
