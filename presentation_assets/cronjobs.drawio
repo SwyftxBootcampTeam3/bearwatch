@@ -1,0 +1,46 @@
+<mxfile host="65bd71144e">
+    <diagram id="JNSD4v3I5N3sY8rXQ9j-" name="Page-1">
+        <mxGraphModel dx="1133" dy="432" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+                    <mxGeometry x="210" y="90" width="350" height="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=#66B2FF;fontColor=#000000;fillColor=#fff;rotation=25;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="65" width="90" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="245" y="125" width="280" height="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;font color=&quot;#000000&quot;&gt;START&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="37" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="" style="triangle;whiteSpace=wrap;html=1;labelBackgroundColor=#66B2FF;fontColor=#ffffff;fillColor=#0050ef;rotation=-25;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="65" width="50" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;font color=&quot;#000000&quot;&gt;FETCH all assets from the SwyftxAPI (market) and our assets table (in DB)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="456" y="125" width="122" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;font color=&quot;#000000&quot;&gt;UPDATE prices for all &lt;b&gt;existing&lt;/b&gt; assets in assets table&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="492" y="252" width="122" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;font color=&quot;#000000&quot;&gt;CHECK for new assets and insert into assets table&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="229" y="370" width="122" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;font color=&quot;#000000&quot;&gt;TRIGGER alerts in database where the target price is reached&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFCCCC;" vertex="1" parent="1">
+                    <mxGeometry x="438" y="358" width="122" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Asynchronous so DB will update triggers independently of cron jobs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=#66B2FF;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="395" y="458" width="200" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;font color=&quot;#000000&quot;&gt;FETCH all alerts from alerts table that have been triggered&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="176" y="252" width="122" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="&lt;font color=&quot;#000000&quot;&gt;SEND SMS alerts to all phone numbers associated to triggered alerts&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCE5FF;" vertex="1" parent="1">
+                    <mxGeometry x="186" y="134" width="122" height="62" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
