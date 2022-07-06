@@ -1,6 +1,5 @@
 from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm  # JWT
 
 
 # dependencies
@@ -16,6 +15,7 @@ from app.db.repositories.assets import AssetsRepository
 
 # services
 from app.services.authentication import AuthService
+from app.services.celery_worker import update_assets
 from app.models.user import User
 
 router = APIRouter()
@@ -32,3 +32,12 @@ async def get_all_assets(
 
     assets = await assets_repo.get_all_assets()
     return assets
+
+
+@router.get("/test", name="assets:get-all-assets")
+async def get_all_assets() -> None:
+    '''
+    Get all assets in the db given an authenticated request
+    '''
+    await update_assets()
+    print('Done')

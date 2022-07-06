@@ -4,14 +4,16 @@ import time
 from typing import List
 
 # models
-from backend.app.models.asset import Asset, AssetCreate
+from app.models.asset import Asset, AssetCreate
 
 # repositories
-from backend.app.db.repositories.assets import AssetsRepository
+from app.db.repositories.assets import AssetsRepository
 
-from backend.app.api.dependencies.database import get_repository
+from app.api.dependencies.database import get_repository
 
-from backend.app.services.utils import get_server_auth_token
+from app.services.utils import get_server_auth_token
+
+from app.api import server
 
 import requests
 from celery import Celery
@@ -27,11 +29,11 @@ celery.conf.result_backend = config("CELERY_RESULT_BACKEND", cast=str)
 # CronJob 1 - Fetch all updated asset prices
 @celery.task(name="update_assets")
 async def update_assets():
-    assets_repo:AssetsRepository = get_repository(AssetsRepository)
+    assets_repo:AssetsRepository = AssetsRepository(server.app.state._db)
 
     # Using markets basic table as Swyftx stores more coin prices than actual coins
     try:
-        new_assets = await requests.get('https://api.swyftx.com.au/markets/info/basic/').json()
+        new_assets = requests.get('https://api.swyftx.com.au/markets/info/basic/').json()
     except Exception as e:
         # This is something we would log in a real application
         print(e)
@@ -41,25 +43,25 @@ async def update_assets():
     except Exception as e:
         # This is something we would log in a real application
         print(e)
-    
+
     #Check for new assets
     if len(new_assets) != len(stored_assets):
-        stored_asset_ids:List[int] = list(map(stored_assets, lambda a: a.external_id))
-        for asset in new_asset:
+        stored_asset_ids:List[int] = list(map(lambda a: a.external_id, stored_assets))
+        for asset in new_assets:
             #Check if the asset doesn't exists in our db
             if asset['id'] not in stored_asset_ids:
                 #Add asset
-                price = (float(asset['buy']) + float(asset['sell']))/2
-                new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
                 try:
+                    price = (float(asset['buy']) + float(asset['sell']))/2
+                    new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
                     await assets_repo.create_asset(new_asset)
                     stored_assets.append(new_asset)
                 except Exception as e:
-                    print(e)            
+                    pass          
 
     #Update our asset prices
     for asset in stored_assets:
-        new_asset = list(filter(new_assets, lambda a: a['id'] == asset.external_id))[0]
+        new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
         price = (float(new_asset['buy']) + float(new_asset['sell']))/2
         await assets_repo.update_asset_price(id=asset.id, price=price)
 

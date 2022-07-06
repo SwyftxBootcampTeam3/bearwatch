@@ -85,7 +85,6 @@ class AssetsRepository(BaseRepository):
         """
         Queries the database for the first matching asset with this external id (this SHOULD be a unique field)
         """
-
         # pass values to query
         asset = await self.db.fetch_one(
             query=GET_ASSET_BY_EXTERNAL_ID, values={"external_id": external_id}
@@ -96,11 +95,10 @@ class AssetsRepository(BaseRepository):
 
         return asset
 
-    async def create_asset(self, *, new_asset: AssetCreate) -> Asset:
+    async def create_asset(self, new_asset: AssetCreate) -> Asset:
         """
         Creates a asset.
         """
-
         # unique constraints exist on external_id
         existing_asset = await self.get_asset_by_external_id(external_id=new_asset.external_id)
 
@@ -113,7 +111,7 @@ class AssetsRepository(BaseRepository):
         # create asset in database
         created_asset = await self.db.fetch_one(
             query=CREATE_ASSET_QUERY, values={
-                "name": new_asset.name, "code": new_asset.code, "last_price": new_asset.last_price}
+                "name": new_asset.name, "code": new_asset.code, "price": new_asset.price, 'external_id': new_asset.external_id}
         )
 
         return created_asset
