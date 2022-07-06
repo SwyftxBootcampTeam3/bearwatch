@@ -40,15 +40,9 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
   const handleSleep = async () => {
     try {
       if (props.alertStatus === "Sleeping") {
-        const res: AxiosResponse = await AlertService.unsleep_alert(
-          props.alertId,
-          props.user.token
-        );
+        await AlertService.unsleep_alert(props.alertId, props.user.token);
       } else {
-        const res: AxiosResponse = await AlertService.sleep_alert(
-          props.alertId,
-          props.user.token
-        );
+        await AlertService.sleep_alert(props.alertId, props.user.token);
       }
       props.updateAlerts();
     } catch (err: any) {
@@ -58,10 +52,7 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
 
   const handleDelete = async () => {
     try {
-      const res: AxiosResponse = await AlertService.delete_alert(
-        props.alertId,
-        props.user.token
-      );
+      await AlertService.delete_alert(props.alertId, props.user.token);
       props.updateAlerts();
     } catch (err: any) {
       console.log(err);

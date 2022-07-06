@@ -72,14 +72,32 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
       if (!isNil(price)) {
         const validPrice: number = Number(price);
         if (!isNil(validPrice) && !isNaN(validPrice) && !(validPrice <= 0)) {
+          //Check the alert is valid - idiotproofing
+          const validAlertType = alertType === "increase" ? true : false;
+          if (validAlertType) {
+            if (validPrice <= validAsset.price) {
+              setValidationError(
+                "Invalid Alert - This would trigger instantly!"
+              );
+              return;
+            }
+          } else {
+            if (validPrice >= validAsset.price) {
+              setValidationError(
+                "Invalid Alert - This would trigger instantly!"
+              );
+              return;
+            }
+          }
+
           try {
             const createAlertRequest: CreateAlertRequest = {
               asset_id: validAsset.id,
               price: validPrice,
-              alert_type: alertType === "increase" ? true : false,
+              alert_type: validAlertType,
               user_id: props.user.id,
             };
-            const res: AxiosResponse = await AlertService.create_alert(
+            await AlertService.create_alert(
               props.user.token,
               createAlertRequest
             );
