@@ -43,7 +43,7 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
   useEffect(() => {
     fetchAlerts();
     fetchAssets();
-  });
+  }, []);
 
   const [addNewAlert, setAddNewAlert] = React.useState(false);
 
