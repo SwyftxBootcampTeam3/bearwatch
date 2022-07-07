@@ -12,7 +12,8 @@ from app.models.asset import Asset, AssetCreate
 
 GET_ALL_ASSETS_QUERY = """
     SELECT id, name, code, price, external_id, created_at, updated_at
-    FROM assets;
+    FROM assets
+    ORDER BY external_id;
 """
 
 GET_ASSET_BY_ID = """
