@@ -11,3 +11,4 @@ RUN pip install --upgrade pip
 ADD ./backend/requirements.txt /backend/
 RUN pip install -r requirements.txt
 COPY . /backend
+CMD celery --workdir ./app/services -A celery_worker.celery worker --loglevel=info
