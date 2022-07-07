@@ -38,3 +38,10 @@ async def force_update() -> None:
     Force update all assets
     '''
     await update_assets()
+
+@router.post("/update_price", name="assets:get-all-assets")
+async def update_price(asset_id: int, price:float, assets_repo: AssetsRepository = Depends(get_repository(AssetsRepository))) -> None:
+    '''
+    Force update all assets
+    '''
+    await assets_repo.update_asset_price(id=asset_id, price=price)

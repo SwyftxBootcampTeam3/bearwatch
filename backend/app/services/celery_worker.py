@@ -83,7 +83,7 @@ async def get_triggered_alerts():
     for alert in triggered_alerts:
         try:
             alert_user = await user_repo.get_user_by_id(id=alert.user_id)
-            send_message(alert_user.phone_number, alert.asset_code, alert.asset_name, alert.price)
+            send_message(alert_user.phone_number, alert.asset_name, alert.asset_code, alert.price)
             #Set as notified
             await alerts_repo.set_alert_notified_by_id(alert_id=alert.id)
         except Exception as e:
