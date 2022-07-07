@@ -49,16 +49,17 @@ async def update_assets():
                     price = (float(asset['buy']) + float(asset['sell']))/2
                     new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
                     await assets_repo.create_asset(new_asset)
-                    stored_assets.append(new_asset)
                 except Exception as e:
                     pass          
 
     #Update our asset prices
     for asset in stored_assets:
-        new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
-        price = (float(new_asset['buy']) + float(new_asset['sell']))/2
-        await assets_repo.update_asset_price(id=asset.id, price=price)
-
+        try:
+            new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
+            price = (float(new_asset['buy']) + float(new_asset['sell']))/2
+            await assets_repo.update_asset_price(id=asset.id, price=price)
+        except Exception as e:
+            print(e)
 
 # CronJob 2 - Fetch all triggered alerts
 @celery.task(name="get-triggered-alerts")

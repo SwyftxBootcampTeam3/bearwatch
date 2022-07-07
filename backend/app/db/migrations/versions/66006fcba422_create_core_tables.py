@@ -5,7 +5,6 @@ Revises:
 Create Date: 2022-06-29 14:13:12.546279
 
 """
-import datetime
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import expression
@@ -17,6 +16,27 @@ revision = '66006fcba422'
 down_revision = None
 branch_labels = None
 depends_on = None
+
+def create_alerts_trigger() -> None:
+    op.execute(
+        """
+        CREATE OR REPLACE FUNCTION mark_alerts_triggered()
+            RETURNS TRIGGER AS
+        $$
+        BEGIN
+            UPDATE alerts
+            SET triggered = true
+            WHERE alerts.id IN (
+                SELECT alerts.id
+                FROM alerts
+                INNER JOIN assets ON alerts.asset_id=NEW.id
+                WHERE (alerts.alert_type = true AND NEW.price >= alerts.price) OR (alerts.alert_type = false AND NEW.price <= alerts.price)
+            );
+            RETURN NEW;
+        END;
+        $$ language 'plpgsql';
+        """
+    )
 
 
 def create_user_table() -> None:
@@ -47,6 +67,16 @@ def create_assets_table() -> None:
                   server_default=sa.func.now(), onupdate=sa.func.now()),
     )
 
+    op.execute(
+        """
+        CREATE TRIGGER check_alerts_triggered
+            AFTER UPDATE
+            ON assets
+            FOR EACH ROW
+        EXECUTE PROCEDURE mark_alerts_triggered();
+        """
+    )
+
 
 def create_alerts_table() -> None:
     op.create_table(
@@ -70,6 +100,7 @@ def create_alerts_table() -> None:
 
 
 def upgrade() -> None:
+    create_alerts_trigger()
     create_user_table()
     create_assets_table()
     create_alerts_table()
@@ -79,3 +110,4 @@ def downgrade() -> None:
     op.drop_table("alerts")
     op.drop_table("assets")
     op.drop_table("users")
+    op.execute("DROP FUNCTION mark_alerts_triggered")

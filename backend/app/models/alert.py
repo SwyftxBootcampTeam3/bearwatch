@@ -39,7 +39,7 @@ class Alert(IDModelMixin, DateTimeModelMixin, AlertBase):
     triggered: bool
     asset_name: str
     asset_code: str
-    asset_price: int
+    asset_price: float
 
 
 class AlertUpdate(CoreModel):
