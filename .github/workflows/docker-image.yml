@@ -23,7 +23,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: bearwatch
+        ECR_REPOSITORY: bearwatch-public
         IMAGE_TAG: bearwatch-server-${{ github.sha }}
       run: |
         docker build . --file ./container/backend/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -47,7 +47,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: bearwatch
+        ECR_REPOSITORY: bearwatch-public
         IMAGE_TAG: bearwatch-frontend-${{ github.sha }}
       run: |
         docker build . --file ./container/frontend/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -71,7 +71,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: bearwatch
+        ECR_REPOSITORY: bearwatch-public
         IMAGE_TAG: bearwatch-celery-${{ github.sha }}
       run: |
         docker build . --file ./container/celery/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -95,7 +95,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: bearwatch
+        ECR_REPOSITORY: bearwatch-public
         IMAGE_TAG: bearwatch-flower-${{ github.sha }}
       run: |
         docker build . --file ./container/flower/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
