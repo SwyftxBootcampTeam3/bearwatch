@@ -8,7 +8,7 @@ from app.db.repositories.assets import AssetsRepository
 
 
 from app.api import server
-from app.services.twilio_helper import send_message
+from app.services.twilio_helper import new_asset_alert, price_alert
 
 import requests
 from celery import Celery
@@ -41,7 +41,7 @@ async def update_assets():
     except Exception as e:
         # This is something we would log in a real application
         print(e)
-
+    
     #Check for new assets
     if len(new_assets) != len(stored_assets):
         stored_asset_ids:List[int] = list(map(lambda a: a.external_id, stored_assets))
@@ -53,18 +53,23 @@ async def update_assets():
                     price = (float(asset['buy']) + float(asset['sell']))/2
                     new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
                     await assets_repo.create_asset(new_asset)
+                    await send_new_asset_alert(new_asset)
                 except Exception as e:
                     pass          
-
+    
     #Update our asset prices
-    for asset in stored_assets:
+    for index,asset in enumerate(stored_assets):
+        #The order of stored assets and new assets SHOULD align, so we use this primarily, then fall back to a filter if we don't find the expected asset
         try:
-            new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
+            if (new_assets[index]['id'] == asset.external_id):
+                new_asset = new_assets[index]
+            else:
+                new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
             price = (float(new_asset['buy']) + float(new_asset['sell']))/2
             await assets_repo.update_asset_price(id=asset.id, price=price)
         except Exception as e:
             print(e)
-
+    
 # CronJob 2 - Fetch all triggered alerts
 @celery.task(name="get-triggered-alerts")
 async def get_triggered_alerts():
@@ -83,8 +88,14 @@ async def get_triggered_alerts():
     for alert in triggered_alerts:
         try:
             alert_user = await user_repo.get_user_by_id(id=alert.user_id)
-            send_message(alert_user.phone_number, alert.asset_name, alert.asset_code, alert.price)
+            price_alert(alert_user, alert)
             #Set as notified
             await alerts_repo.set_alert_notified_by_id(alert_id=alert.id)
         except Exception as e:
             print(e)
+
+async def send_new_asset_alert(asset:Asset):
+    user_repo:UsersRepository = UsersRepository(server.app.state._db)
+    all_users = await user_repo.get_all_users()
+    for user in all_users:
+        new_asset_alert(user, asset)

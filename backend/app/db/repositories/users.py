@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from databases import Database
 
 # app
@@ -20,6 +20,11 @@ CREATE_USER_QUERY = """
     INSERT INTO users (email,phone_number)
     VALUES (:email,:phone_number)
     RETURNING id, email, phone_number, created_at, updated_at;
+"""
+
+GET_ALL_USERS_QUERY = """
+    SELECT id, email, phone_number, created_at, updated_at
+    FROM users
 """
 
 GET_USER_BY_ID_QUERY = """
@@ -73,6 +78,19 @@ class UsersRepository(BaseRepository):
             user = User(**user)
 
         return user
+
+    async def get_all_users(self) -> List[User]:
+        """
+        Queries the database for all users;
+        """
+
+        # pass values to query
+        users = await self.db.fetch_all(
+            query=GET_ALL_USERS_QUERY
+        )
+
+        return list(map(lambda a: User(**a), users))
+
 
     async def get_user_by_id(self, *, id: int) -> User:
         """
