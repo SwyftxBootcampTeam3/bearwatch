@@ -10,6 +10,6 @@ RUN apt-get update \
 RUN pip install --upgrade pip
 ADD ./backend/requirements.txt /backend/
 RUN pip install -r requirements.txt
-COPY . /backend
+COPY ./backend /backend
 CMD uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 8080
 EXPOSE 8080
