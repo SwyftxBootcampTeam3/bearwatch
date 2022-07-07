@@ -2,18 +2,18 @@ version: '3.9'
 
 services:
   frontend:
-    command: npm start
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: ./container/frontend/Dockerfile
     ports:
       - 3000:3000
 
   server:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./container/backend/Dockerfile
     volumes:
       - ./backend/:/backend/
-    command: uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 9191
     env_file:
       - ./backend/.env
     ports:
@@ -29,12 +29,14 @@ services:
       - ./backend/.env
     ports:
       - 5432:5432 #https://docs.docker.com/compose/networking/
+  
   redis:
     image: redis:6.2-alpine
 
   celery_worker:
-    build: ./backend
-    command: celery --workdir ./app/services -A celery_worker.celery worker --loglevel=info
+    build:
+      context: .
+      dockerfile: ./container/celery/Dockerfile
     volumes:
       - ./backend/:/backend/
     env_file:
@@ -44,8 +46,9 @@ services:
       - redis
 
   flower:
-    build: ./backend
-    command: celery --workdir ./app/services -A celery_worker.celery flower -port=5555
+    build:
+      context: .
+      dockerfile: ./container/flower/Dockerfile
     ports:
       - 5556:5555
     env_file:
