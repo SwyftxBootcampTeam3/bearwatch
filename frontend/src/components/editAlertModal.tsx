@@ -46,8 +46,14 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
     p: 4,
   };
 
-  const [alertType, setAlertType] = React.useState<string>("decrease");
-  const [price, setPrice] = React.useState<string | null>(null);
+  const defaultAlertType: string = props.alert.alert_type
+    ? "increase"
+    : "decrease";
+
+  const [alertType, setAlertType] = React.useState<string>(defaultAlertType);
+  const [price, setPrice] = React.useState<string | null>(
+    String(props.alert.price)
+  );
 
   const [validationError, setValidationError] = React.useState<string | null>(
     null
@@ -72,7 +78,6 @@ const AlertModal: FC<ModalProps> = (props: ModalProps) => {
             return;
           }
         }
-
         try {
           const updateAlertRequest: UpdateAlertRequest = {
             price: validPrice,

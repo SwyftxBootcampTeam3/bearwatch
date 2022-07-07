@@ -27,9 +27,3 @@ def send_message(phoneNumber: str,  coin_name: str, coin_code: str, alert_price:
             )
         print(message.sid)
     else: print(create_message(coin_name, coin_code, alert_price))
-
-#test
-#function to call to send a message 
-send_message("+61439020560", "BearToken", "BEAR", 1000)
-
-

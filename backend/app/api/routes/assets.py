@@ -13,7 +13,7 @@ from app.models.asset import Asset
 from app.db.repositories.assets import AssetsRepository
 
 # services
-from app.services.celery_worker import update_assets
+from app.services.celery_worker import update_assets, get_triggered_alerts
 from app.models.user import User
 
 router = APIRouter()
@@ -37,5 +37,5 @@ async def get_all_assets() -> None:
     '''
     Get all assets in the db given an authenticated request
     '''
-    await update_assets()
+    await get_triggered_alerts()
     print('Done')

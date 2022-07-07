@@ -22,6 +22,12 @@ CREATE_USER_QUERY = """
     RETURNING id, email, phone_number, created_at, updated_at;
 """
 
+GET_USER_BY_ID_QUERY = """
+    SELECT id, email, phone_number, created_at, updated_at
+    FROM users
+    WHERE id = :id;
+"""
+
 GET_USER_BY_EMAIL_QUERY = """
     SELECT id, email, phone_number, created_at, updated_at
     FROM users
@@ -67,6 +73,22 @@ class UsersRepository(BaseRepository):
             user = User(**user)
 
         return user
+
+    async def get_user_by_id(self, *, id: int) -> User:
+        """
+        Queries the database for the first matching user with this id.
+        """
+
+        # pass values to query
+        user = await self.db.fetch_one(
+            query=GET_USER_BY_ID_QUERY, values={"id": id}
+        )
+
+        if user:
+            user = User(**user)
+
+        return user
+
 
     async def get_user_by_phone_number(self, *, phone_number: str) -> User:
         """

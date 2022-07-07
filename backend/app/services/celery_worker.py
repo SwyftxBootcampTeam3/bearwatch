@@ -8,10 +8,14 @@ from app.db.repositories.assets import AssetsRepository
 
 
 from app.api import server
+from app.services.twilio_helper import send_message
 
 import requests
 from celery import Celery
 from starlette.config import Config
+from app.db.repositories.alerts import AlertsRepository
+from app.models.alert import Alert
+from app.db.repositories.users import UsersRepository
 
 config = Config(".env")
 
@@ -63,7 +67,24 @@ async def update_assets():
 
 # CronJob 2 - Fetch all triggered alerts
 @celery.task(name="get-triggered-alerts")
-def get_triggered_alerts():
-    # Fetch from DB (write query)
-    # Iterate over and send alerts using lanas stuff
-    pass
+async def get_triggered_alerts():
+    # Alerts are triggered through a db function when the underlying asser price updates
+    # Fetch triggered alerts and send notification
+    alerts_repo:AlertsRepository = AlertsRepository(server.app.state._db)
+    user_repo:UsersRepository = UsersRepository(server.app.state._db)
+
+    try:
+        triggered_alerts:List[Alert] = await alerts_repo.get_alerts_to_notify()
+    except Exception as e:
+        # This is something we would log in a real application
+        print(e)
+
+    #Send Notification and set not active
+    for alert in triggered_alerts:
+        try:
+            alert_user = await user_repo.get_user_by_id(id=alert.user_id)
+            send_message(alert_user.phone_number, alert.asset_code, alert.asset_name, alert.price)
+            #Set as notified
+            await alerts_repo.set_alert_notified_by_id(alert_id=alert.id)
+        except Exception as e:
+            print(e)

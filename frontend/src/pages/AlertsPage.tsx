@@ -30,8 +30,8 @@ const AlertsPage: FC<AlertsProps> = (props: AlertsProps) => {
     const alerts = await AlertService.get_alerts(props.user.token);
     setAlertsSorted({
       watching: alerts.filter((a) => !a.triggered && a.active),
-      triggered: alerts.filter((a) => a.triggered && a.active),
-      sleeping: alerts.filter((a) => !a.active),
+      triggered: alerts.filter((a) => a.triggered),
+      sleeping: alerts.filter((a) => !a.active && !a.triggered),
     });
   }
 
