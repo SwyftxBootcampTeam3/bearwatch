@@ -162,9 +162,9 @@ async def delete_alert(
     await alerts_repo.delete_alert_by_id(alert_id=alert_id)
 
 
-@router.post("/trigger", name="assets:get-all-assets")
-async def trigger_alerts() -> None:
-    '''
-    Get all assets in the db given an authenticated request
-    '''
-    await get_triggered_alerts()
+# @router.post("/trigger", name="assets:get-all-assets")
+# async def trigger_alerts() -> None:
+#     '''
+#     Get all assets in the db given an authenticated request
+#     '''
+#     await get_triggered_alerts()
