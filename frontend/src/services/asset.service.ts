@@ -1,6 +1,6 @@
-import { Token, User, Alert, Asset } from "../types/models";
+import { Token, Asset } from "../types/models";
 import { URL } from "../constants/api";
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axios from "axios";
 
 export default class AssetService {
   static async get_assets(token: Token): Promise<Asset[]> {

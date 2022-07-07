@@ -9,7 +9,7 @@ from app.models.token import AccessToken
 
 class UserBase(CoreModel):
     """
-    The base user model. We don't include those things that are in the database we don't want exposed as any model that extends this will have and have access to its values.
+    The base user model
     """
 
     email: EmailStr
@@ -18,9 +18,7 @@ class UserBase(CoreModel):
 
 class UserCreate(CoreModel):
     """
-    This is the model that we use when we wish to create a new user. We expect email and password.
-    email
-    password
+    The paramaters allowed when creating a user
     """
 
     email: EmailStr
@@ -29,7 +27,7 @@ class UserCreate(CoreModel):
 
 class UserUpdate(CoreModel):
     """
-    Users can update their details
+    The paramaters allowed when updating a user
     """
 
     email: EmailStr
@@ -38,7 +36,7 @@ class UserUpdate(CoreModel):
 
 class User(IDModelMixin, DateTimeModelMixin, UserBase):
     """
-    This extends our base model to include id, created, updated and salt.
+    This extends our base model to include id, created, updated
     Functionally it represents one row of the 'users' table.
     """
 

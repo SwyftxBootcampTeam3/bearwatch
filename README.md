@@ -14,11 +14,13 @@ Once you have the correct version of node running, run ```yarn install``` to ins
 
 ## Backend Development ##
   
-  Start the backend by running command in root folder: 
+Start the backend by running command in root folder: 
 ```bash
 docker-compose up -d --build
 ```
-  You can now open the browser and interact with the api documentation at: http://localhost:8000/docs
+You can now open the browser and interact with the api documentation at: http://localhost:8000/docs
+
+Flower - Celery monitoring tool dashboard can be accessed at: http://localhost:5556 
 
 ## Frontend Development ##
 

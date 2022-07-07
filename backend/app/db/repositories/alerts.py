@@ -1,9 +1,8 @@
-from typing import Optional, List
+from typing import List
 from asyncpg import ForeignKeyViolationError
 from databases import Database
 
 # app
-from pydantic import EmailStr
 from fastapi import HTTPException, status
 
 # repositories
@@ -41,6 +40,13 @@ GET_ALL_ALERTS_QUERY = """
     WHERE alerts.soft_delete = false;
 """
 
+GET_TRIGGERED_ACTIVE_ALERTS_QUERY = """
+    SELECT alerts.id,alerts.user_id,alerts.asset_id,alerts.price,alerts.alert_type,alerts.active,alerts.triggered,alerts.soft_delete, alerts.created_at, alerts.updated_at, assets.name as asset_name, assets.code as asset_code, assets.price as asset_price
+    FROM alerts
+    INNER JOIN assets ON assets.id=alerts.asset_id
+    WHERE alerts.soft_delete = false AND alerts.triggered = true AND alerts.active = true;
+"""
+
 UPDATE_ALERT_PRICE_QUERY = """
     UPDATE alerts
     SET price = :price, alert_type = :alert_type
@@ -55,13 +61,19 @@ DELETE_ALERT_QUERY = """
 
 SLEEP_ALERT_QUERY = """
     UPDATE alerts
-    SET active = false
+    SET active = false, triggered = false
     WHERE id = :id AND soft_delete = false;
 """
 
 UNSLEEP_ALERT_QUERY = """
     UPDATE alerts
-    SET active = true
+    SET active = true, triggered = false
+    WHERE id = :id AND soft_delete = false;
+"""
+
+SET_ALERT_NOTIFIED_QUERY = """
+    UPDATE alerts
+    SET active = false
     WHERE id = :id AND soft_delete = false;
 """
 
@@ -113,6 +125,19 @@ class AlertsRepository(BaseRepository):
         # pass values to query
         alerts = await self.db.fetch_all(
             query=GET_ALL_ALERTS_QUERY
+        )
+
+        # Map alerts to alert model
+        return list(map(lambda a: Alert(**a), alerts))
+
+    async def get_alerts_to_notify(self) -> List[Alert]:
+        """
+        Queries the database for all non-deleted triggered alerts
+        """
+
+        # pass values to query
+        alerts = await self.db.fetch_all(
+            query=GET_TRIGGERED_ACTIVE_ALERTS_QUERY
         )
 
         # Map alerts to alert model
@@ -181,5 +206,16 @@ class AlertsRepository(BaseRepository):
         # update alert in database
         await self.db.fetch_one(
             query=UNSLEEP_ALERT_QUERY, values={
+                "id": alert_id}
+        )
+
+    async def set_alert_notified_by_id(self, *, alert_id: int) -> None:
+        """
+        Set an alert at notified
+        """
+
+        # update alert in database
+        await self.db.fetch_one(
+            query=SET_ALERT_NOTIFIED_QUERY, values={
                 "id": alert_id}
         )

@@ -41,6 +41,9 @@ DATABASE_URL = config(
 DB_MIN_CONNECTIONS = config("DB_MIN_CONNECTIONS", cast=int, default=2)
 DB_MAX_CONNECTIONS = config("DB_MAX_CONNECTIONS", cast=int, default=10)
 
+# celery
+CELERY_BROKER_URL = config("POSTGRES_USER", cast=str)
+CELERY_RESULT_BACKEND = config("POSTGRES_USER", cast=str)
 #TWILIO
 ACCOUNT_SID = config("ACCOUNT_SID", cast=str)
 AUTH_TOKEN = config("ACCOUNT_SID", cast=str)

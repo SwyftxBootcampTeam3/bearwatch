@@ -1,11 +1,7 @@
-import { Token, User, Alert } from "../types/models";
-import {
-  CreateAlertRequest,
-  RegisterRequest,
-  UpdateAlertRequest,
-} from "../types/requests";
+import { Token, Alert } from "../types/models";
+import { CreateAlertRequest, UpdateAlertRequest } from "../types/requests";
 import { URL } from "../constants/api";
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 
 export default class AlertService {
   static async get_alerts(token: Token): Promise<Alert[]> {
