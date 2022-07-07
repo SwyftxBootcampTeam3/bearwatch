@@ -1,5 +1,7 @@
 from typing import List
 
+from asgiref.sync import async_to_sync
+
 # models
 from app.models.asset import Asset, AssetCreate
 
@@ -22,11 +24,21 @@ config = Config(".env")
 celery = Celery(__name__)
 celery.conf.broker_url = config("CELERY_BROKER_URL", cast=str)
 celery.conf.result_backend = config("CELERY_RESULT_BACKEND", cast=str)
+celery.conf.task_serializer = 'pickle'
+celery.conf.result_serializer = 'pickle'
+celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    # Calls test('hello') every 10 seconds.
+    sender.add_periodic_task(10.0, update_assets.s())
+
+    # Calls test('world') every 30 seconds
+    sender.add_periodic_task(30.0, get_triggered_alerts.s())
 
 # CronJob 1 - Fetch all updated asset prices
 @celery.task(name="update_assets")
-async def update_assets():
+def update_assets():
     assets_repo:AssetsRepository = AssetsRepository(server.app.state._db)
 
     # Using markets basic table as Swyftx stores more coin prices than actual coins
@@ -37,7 +49,7 @@ async def update_assets():
         print(e)
 
     try:
-        stored_assets:List[Asset] = await assets_repo.get_all_assets()
+        stored_assets:List[Asset] = async_to_sync(assets_repo.get_all_assets())
     except Exception as e:
         # This is something we would log in a real application
         print(e)
@@ -52,8 +64,8 @@ async def update_assets():
                 try:
                     price = (float(asset['buy']) + float(asset['sell']))/2
                     new_asset = AssetCreate(name=asset['name'], code=asset['code'], price=price, external_id=asset['id'])
-                    await assets_repo.create_asset(new_asset)
-                    await send_new_asset_alert(new_asset)
+                    async_to_sync(assets_repo.create_asset(new_asset))
+                    async_to_sync(send_new_asset_alert(new_asset))
                 except Exception as e:
                     pass          
     
@@ -66,20 +78,20 @@ async def update_assets():
             else:
                 new_asset = list(filter(lambda a: a['id'] == asset.external_id,new_assets))[0]
             price = (float(new_asset['buy']) + float(new_asset['sell']))/2
-            await assets_repo.update_asset_price(id=asset.id, price=price)
+            aasync_to_sync(assets_repo.update_asset_price(id=asset.id, price=price))
         except Exception as e:
             print(e)
     
 # CronJob 2 - Fetch all triggered alerts
 @celery.task(name="get-triggered-alerts")
-async def get_triggered_alerts():
+def get_triggered_alerts():
     # Alerts are triggered through a db function when the underlying asser price updates
     # Fetch triggered alerts and send notification
     alerts_repo:AlertsRepository = AlertsRepository(server.app.state._db)
     user_repo:UsersRepository = UsersRepository(server.app.state._db)
 
     try:
-        triggered_alerts:List[Alert] = await alerts_repo.get_alerts_to_notify()
+        triggered_alerts:List[Alert] = async_to_sync(alerts_repo.get_alerts_to_notify())
     except Exception as e:
         # This is something we would log in a real application
         print(e)
@@ -87,15 +99,15 @@ async def get_triggered_alerts():
     #Send Notification and set not active
     for alert in triggered_alerts:
         try:
-            alert_user = await user_repo.get_user_by_id(id=alert.user_id)
+            alert_user = async_to_sync(user_repo.get_user_by_id(id=alert.user_id))
             price_alert(alert_user, alert)
             #Set as notified
-            await alerts_repo.set_alert_notified_by_id(alert_id=alert.id)
+            async_to_sync(alerts_repo.set_alert_notified_by_id(alert_id=alert.id))
         except Exception as e:
             print(e)
 
-async def send_new_asset_alert(asset:Asset):
+def send_new_asset_alert(asset:Asset):
     user_repo:UsersRepository = UsersRepository(server.app.state._db)
-    all_users = await user_repo.get_all_users()
+    all_users = async_to_sync(user_repo.get_all_users())
     for user in all_users:
         new_asset_alert(user, asset)
