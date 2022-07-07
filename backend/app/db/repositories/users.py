@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from databases import Database
 
 # app
@@ -11,12 +11,26 @@ from app.db.repositories.base import BaseRepository
 # from app.db.repositoris.profiles import ProfilesRepository
 
 # models
-from app.models.user import UserCreate, UserUpdate, User
+from app.models.user import UserCreate, User
+
+# Utils
+from app.services.utils import valid_phone_number
 
 CREATE_USER_QUERY = """
     INSERT INTO users (email,phone_number)
     VALUES (:email,:phone_number)
     RETURNING id, email, phone_number, created_at, updated_at;
+"""
+
+GET_ALL_USERS_QUERY = """
+    SELECT id, email, phone_number, created_at, updated_at
+    FROM users
+"""
+
+GET_USER_BY_ID_QUERY = """
+    SELECT id, email, phone_number, created_at, updated_at
+    FROM users
+    WHERE id = :id;
 """
 
 GET_USER_BY_EMAIL_QUERY = """
@@ -65,7 +79,36 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_phone_number(self, *, phone_number: int) -> User:
+    async def get_all_users(self) -> List[User]:
+        """
+        Queries the database for all users;
+        """
+
+        # pass values to query
+        users = await self.db.fetch_all(
+            query=GET_ALL_USERS_QUERY
+        )
+
+        return list(map(lambda a: User(**a), users))
+
+
+    async def get_user_by_id(self, *, id: int) -> User:
+        """
+        Queries the database for the first matching user with this id.
+        """
+
+        # pass values to query
+        user = await self.db.fetch_one(
+            query=GET_USER_BY_ID_QUERY, values={"id": id}
+        )
+
+        if user:
+            user = User(**user)
+
+        return user
+
+
+    async def get_user_by_phone_number(self, *, phone_number: str) -> User:
         """
         Queries the database for the first matching user with this phone number.
         """
@@ -81,7 +124,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: int) -> User:
+    async def get_user_by_email_and_phone(self, *, email: EmailStr, phone_number: str) -> User:
         """
         Queries the database for the first matching user with this email & phone
         """
@@ -97,7 +140,7 @@ class UsersRepository(BaseRepository):
 
         return user
 
-    async def check_user_already_exists(self, *, email: EmailStr, phone_number: int) -> int:
+    async def check_user_already_exists(self, *, email: EmailStr, phone_number: str) -> int:
         '''
         Queries the database to check the email or phone number provided is already in use
         '''
@@ -114,6 +157,12 @@ class UsersRepository(BaseRepository):
         """
         Creates a user.
         """
+
+        if not valid_phone_number(new_user.phone_number):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="That phone number is invalid!",
+            )
 
         # unique constraints exist on email & phome -> confirm both are not taken
         user_exists = await self.check_user_already_exists(email=new_user.email, phone_number=new_user.phone_number)

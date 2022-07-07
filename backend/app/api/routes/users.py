@@ -1,6 +1,4 @@
-from typing import List
 from fastapi import APIRouter, Depends, Body, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr  # JWT
 
 
@@ -10,7 +8,7 @@ from app.api.dependencies.auth import get_current_user
 
 # models
 from app.models.token import AccessToken
-from app.models.user import UserCreate, User, UserPublic
+from app.models.user import UserCreate, User
 
 # repositories
 from app.db.repositories.users import UsersRepository
@@ -20,50 +18,43 @@ from app.services.authentication import AuthService
 
 router = APIRouter()
 
-# name the route and you can use it across testing and db access
 
-
-@router.get("/me", response_model=UserPublic, name="users:get-user")
+@router.get("/me", response_model=User, name="users:get-user")
 async def get_user(
     current_user: User = Depends(get_current_user),
-) -> UserPublic:
+) -> User:
+    '''
+    Fetch the user from a given JWT
+    '''
 
     return current_user
 
 
 @router.post(
     "/",
-    response_model=UserPublic,
+    response_model=AccessToken,
     name="users:create-user",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
-    new_user: UserCreate = Body(..., embed=True),  # we pass in body of json
+    request: UserCreate = Body(..., embed=True),  # we pass in body of json
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
     auth_service: AuthService = Depends(AuthService)
-) -> UserPublic:
+) -> AccessToken:
     """
-    Creates a new user and returns a public model including access token (JWT)
+    Creates a new user and returns their JWTs
     """
 
     # register user (send UserCreate to db, receive UserInDB)
+    created_user = await user_repo.create_user(new_user=request)
 
-    created_user = await user_repo.create_user(new_user=new_user)
-
-    # create JWT and attach to UserPublic model
-
+    # create JWT
     access_token = AccessToken(
         access_token=auth_service.create_access_token_for_user(
             user=created_user),
         token_type="bearer"
     )
-
-    # return a public model
-
-    # profile attachment done in repository
-
-    # return a public model
-    return created_user.copy(update={"access_token": access_token})
+    return access_token
 
 
 @router.post(
@@ -76,7 +67,7 @@ async def login_user_with_email(
 ) -> AccessToken:
     """
     Takes supplied email, passes this to repo to authenticate.
-    Then generates and returns an accesstoken for that user.
+    Then generates and returns an access token for that user.
     """
     user = await user_repo.authenticate_user(
         email=email
