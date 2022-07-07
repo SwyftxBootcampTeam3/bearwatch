@@ -82,7 +82,7 @@ async def update_alert(
     await alerts_repo.update_alert(alert_id=alert_id, updated_alert=request)
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
-@router.put("/sleep", name="alerts:sleep-alert")
+@router.put("/sleep/", name="alerts:sleep-alert")
 async def sleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),
@@ -108,7 +108,7 @@ async def sleep_alert(
 
     await alerts_repo.sleep_alert_by_id(alert_id=alert_id)
 
-@router.put("/unsleep", name="alerts:unsleep-alert")
+@router.put("/unsleep/", name="alerts:unsleep-alert")
 async def unsleep_alert(
     alert_id: int,
     current_user: User = Depends(get_current_user),

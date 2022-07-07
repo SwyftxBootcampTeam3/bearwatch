@@ -97,6 +97,7 @@ const AlertCard: FC<CardProps> = (props: CardProps) => {
               onClick={() => {
                 setAddNewAlert(true);
               }}
+              disabled={props.alert.triggered}
             >
               <SvgIcon component={EditIcon} />
             </Button>
