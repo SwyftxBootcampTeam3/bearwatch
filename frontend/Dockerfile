@@ -1,5 +1,5 @@
 FROM node:alpine3.11
-ADD . /var/app
+ADD ./frontend /var/app
 WORKDIR /var/app
 ENV PATH="/var/app/node/modules/.bin/:${PATH}"
 RUN npm install
