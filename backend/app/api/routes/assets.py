@@ -15,8 +15,6 @@ from app.db.repositories.assets import AssetsRepository
 # services
 from app.models.user import User
 
-from app.services.celery_worker import update_assets, get_triggered_alerts
-
 router = APIRouter()
 
 
