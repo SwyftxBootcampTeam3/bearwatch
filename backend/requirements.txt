@@ -38,3 +38,5 @@ flower
 twilio
 
 asgiref
+
+fastapi-utils
