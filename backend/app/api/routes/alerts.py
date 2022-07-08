@@ -14,6 +14,7 @@ from app.db.repositories.alerts import AlertsRepository
 
 # services
 from app.models.user import User
+from app.services.celery_worker import get_triggered_alerts
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ async def create_alert(
     Create an alert
     '''
 
-    #Ensure the authenticated user is the one making the request
+    # Ensure the authenticated user is the one making the request
     if current_user.id != request.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -80,6 +81,7 @@ async def update_alert(
     await alerts_repo.update_alert(alert_id=alert_id, updated_alert=request)
     return await alerts_repo.get_alert_by_id(id=alert_id)
 
+
 @router.put("/sleep/", name="alerts:sleep-alert")
 async def sleep_alert(
     alert_id: int,
@@ -105,6 +107,7 @@ async def sleep_alert(
         )
 
     await alerts_repo.sleep_alert_by_id(alert_id=alert_id)
+
 
 @router.put("/unsleep/", name="alerts:unsleep-alert")
 async def unsleep_alert(
@@ -160,9 +163,9 @@ async def delete_alert(
     await alerts_repo.delete_alert_by_id(alert_id=alert_id)
 
 
-# @router.post("/trigger", name="assets:get-all-assets")
-# async def trigger_alerts() -> None:
-#     '''
-#     Get all assets in the db given an authenticated request
-#     '''
-#     await get_triggered_alerts()
+@router.post("/trigger", name="assets:get-all-assets")
+async def trigger_alerts() -> None:
+    '''
+    Get all assets in the db given an authenticated request
+    '''
+    await get_triggered_alerts()

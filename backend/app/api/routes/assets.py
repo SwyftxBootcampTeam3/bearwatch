@@ -14,6 +14,7 @@ from app.db.repositories.assets import AssetsRepository
 
 # services
 from app.models.user import User
+from app.services.celery_worker import update_assets
 
 router = APIRouter()
 
@@ -30,16 +31,18 @@ async def get_all_assets(
     assets = await assets_repo.get_all_assets()
     return assets
 
-# @router.post("/update", name="assets:get-all-assets")
-# async def force_update() -> None:
-#     '''
-#     Force update all assets
-#     '''
-#     await update_assets()
 
-# @router.post("/update_price", name="assets:get-all-assets")
-# async def update_price(asset_id: int, price:float, assets_repo: AssetsRepository = Depends(get_repository(AssetsRepository))) -> None:
-#     '''
-#     Force update all assets
-#     '''
-#     await assets_repo.update_asset_price(id=asset_id, price=price)
+@router.post("/update", name="assets:get-all-assets")
+async def force_update() -> None:
+    '''
+    Force update all assets
+    '''
+    await update_assets()
+
+
+@router.post("/update_price", name="assets:get-all-assets")
+async def update_price(asset_id: int, price: float, assets_repo: AssetsRepository = Depends(get_repository(AssetsRepository))) -> None:
+    '''
+    Force update all assets
+    '''
+    await assets_repo.update_asset_price(id=asset_id, price=price)
